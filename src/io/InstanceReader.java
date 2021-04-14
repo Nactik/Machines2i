@@ -74,6 +74,7 @@ public class InstanceReader {
             FileReader f = new FileReader(this.instanceFile.getAbsolutePath());
             BufferedReader br = new BufferedReader(f);
             String nom = lireNom(br);
+            int nbDays = readDays(br);
             int capacite = lireCapacite(br);
             Map<Integer, Point> points = lirePoints(br);
             List<Client> clients = lireDemandes(br, points);
@@ -103,14 +104,32 @@ public class InstanceReader {
      */
     private String lireNom(BufferedReader br) throws IOException {
         String ligne = br.readLine();
-        while(!ligne.contains("NAME :")) {
+        while(!ligne.contains("NAME =")) {
             ligne = br.readLine();
         }
         ligne = ligne.replace(" ", "");
-        ligne = ligne.replace("NAME:", "");
+        ligne = ligne.replace("NAME =", "");
         return ligne;
     }
-    
+
+    /**
+     * Lecture du nb de jours de l'instance.
+     * La ligne dans le fichier doit commencer par "DAYS ="
+     * @param br lecteur courant du fichier d'instance
+     * @return le nombre de jours
+     * @throws IOException
+     */
+    private int readDays(BufferedReader br) throws IOException{
+        String line = br.readLine();
+        while(!line.contains("DAYS ="))
+            line = br.readLine();
+
+        line = line.replace(" ", "");
+        line = line.replace("DAYS =", "");
+
+        return Integer.parseInt(line);
+    }
+
     /**
      * Lecture des coordonees des points.
      * La section dans le fichier doit commencer par "NODE_COORD_SECTION"
