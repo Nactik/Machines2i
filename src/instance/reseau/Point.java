@@ -1,16 +1,34 @@
 package instance.reseau;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class Point {
     private int id;
     private int x;
     private int y;
+    private Map<Point, Route> routeCollection;
 
     public Point(int id, int x, int y) {
         this.id = id;
         this.x = x;
         this.y = y;
+        routeCollection = new HashMap<>();
+    }
+
+    public boolean addRoute(Point destination){
+        if (destination == null){
+            return false;
+        }
+        Route route = new Route(this,destination);
+        this.routeCollection.put(destination,route);
+        return true;
+    }
+    public int getCostTo(Point destination){
+        Route route = this.routeCollection.get(destination);
+        if(route == null) return Integer.MAX_VALUE;
+        else return route.getCost();
     }
 
     public int getId() {
