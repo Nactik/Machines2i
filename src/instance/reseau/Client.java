@@ -2,6 +2,7 @@ package instance.reseau;
 
 import instance.model.Demande;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,6 +15,7 @@ public class Client extends Point{
     }
     public Client(Integer id, int x, int y) {
         super(id, x, y);
+        this.demandes = new ArrayList<>();
     }
     
     public boolean addDemande(Demande demandeToAdd){

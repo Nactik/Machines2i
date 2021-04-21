@@ -25,6 +25,7 @@ public class Point {
         this.routeCollection.put(destination,route);
         return true;
     }
+
     public int getCostTo(Point destination){
         Route route = this.routeCollection.get(destination);
         if(route == null) return Integer.MAX_VALUE;

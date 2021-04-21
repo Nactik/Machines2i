@@ -17,7 +17,6 @@ import io.exception.FileExistException;
 import io.exception.FormatFileException;
 import io.exception.OpenFileException;
 import io.exception.ReaderException;
-import org.w3c.dom.ls.LSOutput;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -69,28 +68,61 @@ public class InstanceReader {
         try{
             FileReader f = new FileReader(this.instanceFile.getAbsolutePath());
             BufferedReader br = new BufferedReader(f);
-            String nom = lireNom(br); //OK
-            int nbDays = readDays(br); //OK
-            int capacite = lireCapacite(br);
-            Map<Integer, Point> points = lirePoints(br); //OK
-            List<Client> clients = lireDemandes(br, points);// OK
-            Depot depot = lireDepot(br, points);
+
+            String nom = lireNom(br);
+            int nbDays = lireDays(br);
+
+            int truckCapacity = lireLabel(br,"TRUCK_CAPACITY =");
+            int truckMaxDistance = lireLabel(br,"TRUCK_MAX_DISTANCE =");
+
+            int truckDistanceCost = lireLabel(br,"TRUCK_DISTANCE_COST =");
+            int truckDayCost = lireLabel(br,"TRUCK_DAY_COST =");
+            int truckCost = lireLabel(br,"TRUCK_COST =");
+
+            int techDistCost =  lireLabel(br,"TECHNICIAN_DISTANCE_COST =");
+            int techDayCost =  lireLabel(br,"TECHNICIAN_DAY_COST =");
+            int techCost =  lireLabel(br,"TECHNICIAN_COST =");
+
+            waitLine(br,"MACHINES =");
+            List<Machine> machines = lireMachines(br);
+
+            waitLine(br,"LOCATIONS =");
+            Map<Integer, Point> points = lirePoints(br);
+
+            waitLine(br,"REQUESTS =");
+            List<Client> clients = lireDemandes(br, points);
+
+            Entrepot entrepot = lireEntrepot(points);
+            waitLine(br,"TECHNICIANS =");
+
+            List<Technicien> technicians = lireTechnicians(br, points);
+
             // TO CHECK : constructeur de la classe Instance
-            Instance instance = new Instance(nom, capacite, depot);
+            Instance instance = new Instance(nom, nbDays, truckCapacity, truckMaxDistance, truckDistanceCost, truckDayCost,
+                    truckCost, techDayCost, techDistCost, techCost, entrepot);
+
             for(Client c : clients) {
                 // TO CHECK : ajout d'un client dans la classe Instance
-                instance.ajouterClient(c);
+                instance.addClient(c);
             }
             br.close();
             f.close();
             return instance;
+
         } catch (FileNotFoundException ex) {
             throw new FileExistException(instanceFile.getName());
         } catch (IOException ex) {
             throw new ReaderException("IO exception", ex.getMessage());
         }
     }
-    
+
+    private void waitLine(BufferedReader br,String label) throws IOException {
+        String line = null;
+        line = br.readLine();
+        while(!line.contains(label)){
+            line = br.readLine();
+        }
+    }
     /**
      * Lecture du nom de l'instance.
      * La ligne dans le fichier doit commencer par "NAME :"
@@ -115,15 +147,25 @@ public class InstanceReader {
      * @return le nombre de jours
      * @throws IOException
      */
-    private int readDays(BufferedReader br) throws IOException{
+    private int lireDays(BufferedReader br) throws IOException{
         String line = br.readLine();
         while(!line.contains("DAYS ="))
             line = br.readLine();
 
         line = line.replace(" ", "");
-        line = line.replace("DAYS =", "");
+        line = line.replace("DAYS=", "");
 
         return Integer.parseInt(line);
+    }
+
+    private int lireLabel(BufferedReader br, String label) throws IOException{
+        String ligne = br.readLine();
+        while(!ligne.contains(label)) {
+            ligne = br.readLine();
+        }
+        ligne = ligne.replace(label, "");
+        ligne = ligne.replace(" ", "");
+        return Integer.parseInt(ligne);
     }
 
     /**
@@ -138,12 +180,8 @@ public class InstanceReader {
     private Map<Integer,Point> lirePoints(BufferedReader br) throws IOException {
         Map<Integer, Point> points = new LinkedHashMap<>();
         String ligne = br.readLine();
-        while(!ligne.contains("LOCATIONS =")) {
-            ligne = br.readLine();
-        }
-        ligne = br.readLine();
 
-        while(!ligne.contains("REQUESTS =")) {
+        while(!ligne.isEmpty()) {
             Point p = lireUnPoint(ligne);
             points.put(p.getId(), p);
             ligne = br.readLine();
@@ -161,32 +199,13 @@ public class InstanceReader {
      */
     private Point lireUnPoint(String ligne) throws IOException, NumberFormatException {
         ligne = ligne.strip();
-        String[] values = ligne.split(" |\t");
+        String[] values = ligne.split(" ");
         int id = Integer.parseInt(values[0]);
         int x = Integer.parseInt(values[1]);
         int y = Integer.parseInt(values[2]);
         // TO CHECK : constructeur de la classe Client
         // ordre des paramètres : quantite, identifiant, abscisse, ordonnee
-        return new Client(id,x,y,0);
-    }
-    
-    /**
-     * Lecture de la capacite de camions.
-     * La ligne doit commencer par "CAPACITY :"
-     * @param br le lecteur courant du fichier d'instance
-     * @return la capacite des camions
-     * @throws IOException 
-     */
-    private int lireCapacite(BufferedReader br) throws IOException {
-        String ligne = br.readLine();
-        while(!ligne.contains("CAPACITY :")) {
-            ligne = br.readLine();
-        }
-        ligne = ligne.replace(" ", "");
-        ligne = ligne.replace("CAPACITY:", "");
-        ligne = ligne.trim();
-        int capacite = Integer.parseInt(ligne);
-        return capacite;
+        return new Client(id,x,y);
     }
     
     /**
@@ -204,7 +223,7 @@ public class InstanceReader {
          Map<Integer, Client> clients = new LinkedHashMap<>();
          //List<Client> clients = new ArrayList<>();
          String ligne = br.readLine();
-         while (!ligne.contains("TECHNICIANS = ")) {
+         while (!ligne.isEmpty()) {
              Client c = lireUneDemande(ligne, points, clients);
              if (c != null) {
                  clients.put(c.getId(), c);
@@ -229,7 +248,7 @@ public class InstanceReader {
     private Client lireUneDemande(String ligne, Map<Integer, Point> points, Map<Integer, Client> clients)
             throws IOException, NumberFormatException {
 
-        String[] values = ligne.split(" |\t");
+        String[] values = ligne.split(" ");
         int idDemand = Integer.parseInt(values[0]);
         int idClient = Integer.parseInt(values[1]);
         int firstDay = Integer.parseInt(values[2]);
@@ -251,26 +270,15 @@ public class InstanceReader {
         return c;
     }
 
-    /**
-     * Lecture du depot.
-     * Parmi les point de l'instance, on choisit celui dont l'id est celui du depot.
-     * Cette methode doit etre appelee juste apres la methode lireDemandes
-     * @param br le lecteur courant du fichier d'instance
-     * @param points les points de l'instance (lus avec la methode lirePoints)
-     * @return le depot de l'instance
-     * @throws IOException 
-     */
-    private Entrepot lireDepot(BufferedReader br, Map<Integer, Point> points) throws IOException {
+    private Entrepot lireEntrepot(Map<Integer, Point> points) throws IOException {
         Point p = points.get(1);
-        // TO CHECK : constructeur de la classe Depot
-        // ordre des paramètres : identifiant, abscisse, ordonnee
         return new Entrepot(p.getId(), p.getX(), p.getY());
     }
 
     private List<Machine> lireMachines(BufferedReader br) throws IOException {
-        List<Machine> machines = new ArrayList()<>;
+        List<Machine> machines = new ArrayList();
         String ligne = br.readLine();
-        while(!ligne.contains("LOCATIONS = ")) {
+        while(ligne.isEmpty()) {
             Machine m = lireUneMachine(ligne);
             if(m != null){
                 machines.add(m);
@@ -280,17 +288,14 @@ public class InstanceReader {
         return machines;
     }
 
-    private List<Machine> lireUneMachine(String ligne) {
-        String[] values = ligne.split(" |\t");
+    private Machine lireUneMachine(String ligne) {
+        String[] values = ligne.split(" ");
         int typeId = Integer.parseInt(values[0]);
         int size = Integer.parseInt(values[1]);
         int penality = Integer.parseInt(values[2]);
         return new Machine(typeId, size, penality);
     }
 
-    /**
-     * Lecture des techniciens.
-     */
     private List<Technicien> lireTechnicians(BufferedReader br, Map<Integer, Point> points)
             throws IOException {
         List<Technicien> technicians = new ArrayList<>();
@@ -305,12 +310,9 @@ public class InstanceReader {
         return technicians;
     }
 
-    /**
-     * Lecture d'un technicien.
-     */
     private Technicien lireUnTechnician(String ligne, Map<Integer, Point> points)
             throws IOException, NumberFormatException {
-        String[] values = ligne.split(" |\t");
+        String[] values = ligne.split(" ");
         int idTechnicien = Integer.parseInt(values[0]);
         Point localisation = points.get(Integer.parseInt(values[1]));
         int distanceMax = Integer.parseInt(values[2]);
@@ -326,15 +328,19 @@ public class InstanceReader {
         return technicien;
     }
 
+
+
     /**
      * Test de lecture d'une instance.
      * @param args
      */
     public static void main(String[] args) {
         try {
-            InstanceReader reader = new InstanceReader("instances/A-n32-k5.vrp");
+            InstanceReader reader = new InstanceReader("exemple/testInstance.txt");
             System.out.println(reader.readInstance().toString());
             System.out.println("Instance lue avec success !");
+            Instance instance = reader.readInstance();
+            System.out.println(instance);
         } catch (ReaderException ex) {
             System.out.println(ex.getMessage());
         }
