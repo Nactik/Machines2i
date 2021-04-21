@@ -7,17 +7,17 @@ import java.util.Objects;
 
 public class Demande {
     private int id;
-    private Client client;
+    private final int idMachine;
     private final int nbMachines;
     private final int firstDay;
     private final int lastDay;
 
-    public Demande(int id, int nbMachines, int firstDay, int lastDay, Client client) {
+    public Demande(int id, int firstDay, int lastDay, int idMachine,int nbMachines) {
         this.id = id;
+        this.idMachine = idMachine;
         this.nbMachines = nbMachines;
         this.firstDay = firstDay;
         this.lastDay = lastDay;
-        this.client = client;
     }
 
 

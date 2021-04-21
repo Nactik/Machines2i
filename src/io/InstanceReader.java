@@ -8,6 +8,8 @@ package io;
 // TO CHECK : import des classes Instance, Client, Depot et Point
 import instance.Instance;
 import instance.model.Demande;
+import instance.model.Technicien;
+import instance.model.Machine;
 import instance.reseau.Client;
 import instance.reseau.Entrepot;
 import instance.reseau.Point;
@@ -28,19 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Cette classe permet de lire une instance pour les TPs du cours de LE4-SI
- * POO pour l'optimisation.
+ * Cette classe permet de lire une instance pour le projet de POO des LE4 SI
  * 
  * Les instances sont fournies sur moodle au format ".vrp".
- * 
- * Pour que le lecteur d'instance fonctionne correctement, il faut que les 
- * signatures des constructeurs des classes Depot, Client, et Instances, ainsi 
- * que la methode ajouterClient de la classe Instance soient bien conformes a 
- * la description dans le sujet du TP.
- * Des commentaires annotes avec 'TO CHECK' vous permettent de facilement reperer
- * dans cette classe les lignes que vous devez verifier et modifier si besoin. 
- * 
- * @author Maxime Ogier
+ * Ne pas oublier de mettre les instructions dans le bon ordre
  */
 public class InstanceReader {
     /**
@@ -80,7 +73,7 @@ public class InstanceReader {
             int nbDays = readDays(br); //OK
             int capacite = lireCapacite(br);
             Map<Integer, Point> points = lirePoints(br); //OK
-            List<Client> clients = lireDemandes(br, points);
+            List<Client> clients = lireDemandes(br, points);// OK
             Depot depot = lireDepot(br, points);
             // TO CHECK : constructeur de la classe Instance
             Instance instance = new Instance(nom, capacite, depot);
@@ -201,24 +194,25 @@ public class InstanceReader {
      * Cette methode doit etre appelee juste apres la methode lirePoints.
      * La lecture se termine par la ligne "DEPOT_SECTION".
      * Seuls les clients avec une demande strictement positive sont renvoyes.
-     * @param br le lecteur courant du fichier d'instance
-     * @param points l'ensemble des points (lus avec la methode lirePoints)
-     * @return l'ensemble des clients avec une demande strictement positive
-     * @throws IOException 
-     */
-    private List<Client> lireDemandes(BufferedReader br, Map<Integer, Point> points) 
-            throws IOException {
-        List<Client> clients = new ArrayList<>();
-        String ligne = br.readLine();
-        while(!ligne.contains("REQUESTS = ")) {
-            Client c = lireUneDemande(ligne, points);
-            if(c != null) {
-                clients.add(c);
-            }
-            ligne = br.readLine();
-        }
-        return clients;
-    }
+      * @param br le lecteur courant du fichier d'instance
+      * @param points l'ensemble des points (lus avec la methode lirePoints)
+      * @return l'ensemble des clients avec une demande strictement positive
+      * @throws IOException
+      */
+     private List<Client> lireDemandes(BufferedReader br, Map<Integer, Point> points)
+             throws IOException {
+         Map<Integer, Client> clients = new LinkedHashMap<>();
+         //List<Client> clients = new ArrayList<>();
+         String ligne = br.readLine();
+         while (!ligne.contains("TECHNICIANS = ")) {
+             Client c = lireUneDemande(ligne, points, clients);
+             if (c != null) {
+                 clients.put(c.getId(), c);
+             }
+             ligne = br.readLine();
+         }
+         return new ArrayList<Client>(clients.values());
+     }
     
     /**
      * Lecture d'un client avec sa demande.
@@ -232,28 +226,32 @@ public class InstanceReader {
      * @throws IOException
      * @throws NumberFormatException
      */
-    private Client lireUneDemande(String ligne, Map<Integer, Point> points)
+    private Client lireUneDemande(String ligne, Map<Integer, Point> points, Map<Integer, Client> clients)
             throws IOException, NumberFormatException {
-        ligne = ligne.strip();
+
         String[] values = ligne.split(" |\t");
-        int idDemande = Integer.parseInt(values[0]);
+        int idDemand = Integer.parseInt(values[0]);
         int idClient = Integer.parseInt(values[1]);
         int firstDay = Integer.parseInt(values[2]);
         int lastDay = Integer.parseInt(values[3]);
         int idMachine = Integer.parseInt(values[4]);
         int nbMachine = Integer.parseInt(values[5]);
 
-        Demande demande = new Demande(idDemande, idMachine, nbMachine, firstDay, lastDay);
+        Demande demand = new Demande(idDemand, firstDay, lastDay, idMachine, nbMachine);
+
+        Client c = clients.get(idClient);
+        if(c != null) {
+            c.addDemande(demand);
+            return null;
+        }
 
         Point p = points.get(idClient);
-
-        // TO CHECK : constructeur de la classe Client
-        // ordre des paramètres : quantite, identifiant, abscisse, ordonnee
-        return new Client(p.getId(), p.getX(), p.getY(), demande);
+        c = new Client(p.getId(), p.getX(), p.getY());
+        c.addDemande(demand);
+        return c;
     }
-    
+
     /**
-     *
      * Lecture du depot.
      * Parmi les point de l'instance, on choisit celui dont l'id est celui du depot.
      * Cette methode doit etre appelee juste apres la methode lireDemandes
@@ -269,26 +267,68 @@ public class InstanceReader {
         return new Entrepot(p.getId(), p.getX(), p.getY());
     }
 
-    private Client lireMachine(String ligne, Map<Integer, Point> points)
-            throws IOException, NumberFormatException {
-        ligne = ligne.strip();
-        String[] values = ligne.split(" |\t");
-        int idDemande = Integer.parseInt(values[0]);
-        int idClient = Integer.parseInt(values[1]);
-        int firstDay = Integer.parseInt(values[2]);
-        int lastDay = Integer.parseInt(values[3]);
-        int idMachine = Integer.parseInt(values[4]);
-        int nbMachine = Integer.parseInt(values[5]);
-
-        Point p = points.get(id);
-        // TO CHECK : constructeur de la classe Client
-        // ordre des paramètres : quantite, identifiant, abscisse, ordonnee
-        return new Client(p.getId(), p.getAbscisse(), p.getOrdonnee(), q);
+    private List<Machine> lireMachines(BufferedReader br) throws IOException {
+        List<Machine> machines = new ArrayList()<>;
+        String ligne = br.readLine();
+        while(!ligne.contains("LOCATIONS = ")) {
+            Machine m = lireUneMachine(ligne);
+            if(m != null){
+                machines.add(m);
+            }
+            ligne  = br.readLine();
+        }
+        return machines;
     }
-    
+
+    private List<Machine> lireUneMachine(String ligne) {
+        String[] values = ligne.split(" |\t");
+        int typeId = Integer.parseInt(values[0]);
+        int size = Integer.parseInt(values[1]);
+        int penality = Integer.parseInt(values[2]);
+        return new Machine(typeId, size, penality);
+    }
+
+    /**
+     * Lecture des techniciens.
+     */
+    private List<Technicien> lireTechnicians(BufferedReader br, Map<Integer, Point> points)
+            throws IOException {
+        List<Technicien> technicians = new ArrayList<>();
+        String ligne = br.readLine();
+        while(ligne!=null) {
+            Technicien t = lireUnTechnician(ligne, points);
+            if(t != null) {
+                technicians.add(t);
+            }
+            ligne = br.readLine();
+        }
+        return technicians;
+    }
+
+    /**
+     * Lecture d'un technicien.
+     */
+    private Technicien lireUnTechnician(String ligne, Map<Integer, Point> points)
+            throws IOException, NumberFormatException {
+        String[] values = ligne.split(" |\t");
+        int idTechnicien = Integer.parseInt(values[0]);
+        Point localisation = points.get(Integer.parseInt(values[1]));
+        int distanceMax = Integer.parseInt(values[2]);
+        int demandeMax = Integer.parseInt(values[3]);
+        Map<Integer,Integer> canInstall = new LinkedHashMap<>();
+
+        for (int i = 4; i < values.length; i++) {
+            canInstall.put(i-3,Integer.parseInt(values[i]));
+        }
+
+        Technicien technicien = new Technicien(idTechnicien, localisation, distanceMax, demandeMax,canInstall);
+
+        return technicien;
+    }
+
     /**
      * Test de lecture d'une instance.
-     * @param args 
+     * @param args
      */
     public static void main(String[] args) {
         try {
