@@ -7,13 +7,16 @@ package io;
 
 // TO CHECK : import des classes Instance, Client, Depot et Point
 import instance.Instance;
+import instance.model.Demande;
 import instance.reseau.Client;
-import instance.reseau.Depot;
+import instance.reseau.Entrepot;
 import instance.reseau.Point;
 import io.exception.FileExistException;
 import io.exception.FormatFileException;
 import io.exception.OpenFileException;
 import io.exception.ReaderException;
+import org.w3c.dom.ls.LSOutput;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -73,10 +76,10 @@ public class InstanceReader {
         try{
             FileReader f = new FileReader(this.instanceFile.getAbsolutePath());
             BufferedReader br = new BufferedReader(f);
-            String nom = lireNom(br);
-            int nbDays = readDays(br);
+            String nom = lireNom(br); //OK
+            int nbDays = readDays(br); //OK
             int capacite = lireCapacite(br);
-            Map<Integer, Point> points = lirePoints(br);
+            Map<Integer, Point> points = lirePoints(br); //OK
             List<Client> clients = lireDemandes(br, points);
             Depot depot = lireDepot(br, points);
             // TO CHECK : constructeur de la classe Instance
@@ -142,16 +145,36 @@ public class InstanceReader {
     private Map<Integer,Point> lirePoints(BufferedReader br) throws IOException {
         Map<Integer, Point> points = new LinkedHashMap<>();
         String ligne = br.readLine();
-        while(!ligne.contains("NODE_COORD_SECTION")) {
+        while(!ligne.contains("LOCATIONS =")) {
             ligne = br.readLine();
         }
         ligne = br.readLine();
-        while(!ligne.contains("DEMAND_SECTION")) {
+
+        while(!ligne.contains("REQUESTS =")) {
             Point p = lireUnPoint(ligne);
             points.put(p.getId(), p);
             ligne = br.readLine();
         }
         return points;
+    }
+
+    /**
+     * Lecture d'un point sur une ligne.
+     * @param ligne ligne du fichier d'instance contenant un point avec : id,
+     * abscisse, ordonnee
+     * @return un point (client avec demande de 0)
+     * @throws IOException
+     * @throws NumberFormatException
+     */
+    private Point lireUnPoint(String ligne) throws IOException, NumberFormatException {
+        ligne = ligne.strip();
+        String[] values = ligne.split(" |\t");
+        int id = Integer.parseInt(values[0]);
+        int x = Integer.parseInt(values[1]);
+        int y = Integer.parseInt(values[2]);
+        // TO CHECK : constructeur de la classe Client
+        // ordre des paramètres : quantite, identifiant, abscisse, ordonnee
+        return new Client(id,x,y,0);
     }
     
     /**
@@ -187,7 +210,7 @@ public class InstanceReader {
             throws IOException {
         List<Client> clients = new ArrayList<>();
         String ligne = br.readLine();
-        while(!ligne.contains("DEPOT_SECTION")) {
+        while(!ligne.contains("REQUESTS = ")) {
             Client c = lireUneDemande(ligne, points);
             if(c != null) {
                 clients.add(c);
@@ -196,54 +219,41 @@ public class InstanceReader {
         }
         return clients;
     }
-
-    /**
-     * Lecture d'un point sur une ligne.
-     * @param ligne ligne du fichier d'instance contenant un point avec : id, 
-     * abscisse, ordonnee
-     * @return un point (client avec demande de 0)
-     * @throws IOException
-     * @throws NumberFormatException 
-     */
-    private Point lireUnPoint(String ligne) throws IOException, NumberFormatException {
-        ligne = ligne.strip();
-        String[] values = ligne.split(" |\t");
-        int id = Integer.parseInt(values[0]);
-        int x = Integer.parseInt(values[1]);
-        int y = Integer.parseInt(values[2]);
-        // TO CHECK : constructeur de la classe Client
-        // ordre des paramètres : quantite, identifiant, abscisse, ordonnee
-        return new Client(id,x,y,0);
-    }
     
     /**
      * Lecture d'un client avec sa demande.
      * A partir de l'id du client, on recupere le point correspondant, et on cree
      * un client avec les ccaracteristiques du point et sa demande.
-     * @param ligne ligne du fichier de texte dans laquelle on a l'id du client 
+     * @param ligne ligne du fichier de texte dans laquelle on a l'id du client
      * et sa demande
      * @param points tous les points de l'instance
-     * @return un client avec demande positive, null si la demande est negative 
+     * @return un client avec demande positive, null si la demande est negative
      * ou nulle
      * @throws IOException
-     * @throws NumberFormatException 
+     * @throws NumberFormatException
      */
-    private Client lireUneDemande(String ligne, Map<Integer, Point> points) 
+    private Client lireUneDemande(String ligne, Map<Integer, Point> points)
             throws IOException, NumberFormatException {
         ligne = ligne.strip();
         String[] values = ligne.split(" |\t");
-        int id = Integer.parseInt(values[0]);
-        int q = Integer.parseInt(values[1]);
-        if(q <= 0) {
-            return null;
-        }
-        Point p = points.get(id);
+        int idDemande = Integer.parseInt(values[0]);
+        int idClient = Integer.parseInt(values[1]);
+        int firstDay = Integer.parseInt(values[2]);
+        int lastDay = Integer.parseInt(values[3]);
+        int idMachine = Integer.parseInt(values[4]);
+        int nbMachine = Integer.parseInt(values[5]);
+
+        Demande demande = new Demande(idDemande, idMachine, nbMachine, firstDay, lastDay);
+
+        Point p = points.get(idClient);
+
         // TO CHECK : constructeur de la classe Client
         // ordre des paramètres : quantite, identifiant, abscisse, ordonnee
-        return new Client(p.getId(), p.getAbscisse(), p.getOrdonnee(), q);
+        return new Client(p.getId(), p.getX(), p.getY(), demande);
     }
     
     /**
+     *
      * Lecture du depot.
      * Parmi les point de l'instance, on choisit celui dont l'id est celui du depot.
      * Cette methode doit etre appelee juste apres la methode lireDemandes
@@ -252,15 +262,28 @@ public class InstanceReader {
      * @return le depot de l'instance
      * @throws IOException 
      */
-    private Depot lireDepot(BufferedReader br, Map<Integer, Point> points) throws IOException {
-        String ligne = br.readLine();
-        ligne = ligne.strip();
-        int id = Integer.parseInt(ligne);
-        Point p = points.get(id);
+    private Entrepot lireDepot(BufferedReader br, Map<Integer, Point> points) throws IOException {
+        Point p = points.get(1);
         // TO CHECK : constructeur de la classe Depot
         // ordre des paramètres : identifiant, abscisse, ordonnee
-        Depot depot = new Depot(p.getId(), p.getAbscisse(), p.getOrdonnee());
-        return depot;
+        return new Entrepot(p.getId(), p.getX(), p.getY());
+    }
+
+    private Client lireMachine(String ligne, Map<Integer, Point> points)
+            throws IOException, NumberFormatException {
+        ligne = ligne.strip();
+        String[] values = ligne.split(" |\t");
+        int idDemande = Integer.parseInt(values[0]);
+        int idClient = Integer.parseInt(values[1]);
+        int firstDay = Integer.parseInt(values[2]);
+        int lastDay = Integer.parseInt(values[3]);
+        int idMachine = Integer.parseInt(values[4]);
+        int nbMachine = Integer.parseInt(values[5]);
+
+        Point p = points.get(id);
+        // TO CHECK : constructeur de la classe Client
+        // ordre des paramètres : quantite, identifiant, abscisse, ordonnee
+        return new Client(p.getId(), p.getAbscisse(), p.getOrdonnee(), q);
     }
     
     /**

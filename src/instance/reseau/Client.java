@@ -14,6 +14,7 @@ public class Client extends Point{
         return demande;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
