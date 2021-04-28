@@ -2,6 +2,8 @@ package instance.model;
 
 import instance.reseau.Point;
 
+import java.util.Objects;
+
 public class Camion {
     private int id;
     private int distance;
@@ -21,5 +23,18 @@ public class Camion {
         this(id, maxDistance, dayCost, maxCost);
         this.distance = distance;
         this.capacity = capacity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Camion camion = (Camion) o;
+        return id == camion.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

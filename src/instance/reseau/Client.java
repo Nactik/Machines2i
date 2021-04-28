@@ -48,8 +48,8 @@ public class Client extends Point{
     @Override
     public String toString() {
         return "Client {" +
-                "demande=" + demandes + " " +
-                super.toString() +
-                " }";
+                "point: " + super.toString() +
+                ", demande: " + demandes +
+                "}";
     }
 }

@@ -33,4 +33,15 @@ public class Demande {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    @Override
+    public String toString() {
+        return "Demande {" +
+                "id: " + id +
+                ", idMachine: " + idMachine +
+                ", nbMachines: " + nbMachines +
+                ", firstDay: " + firstDay +
+                ", lastDay: " + lastDay +
+                '}';
+    }
 }

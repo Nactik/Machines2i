@@ -1,5 +1,7 @@
 package instance.model;
 
+import java.util.Objects;
+
 public class Machine {
     private int typeId;
     private int size;
@@ -16,5 +18,14 @@ public class Machine {
         this.typeId = typeId;
         this.size = size;
         this.penality = penality;
+    }
+
+    @Override
+    public String toString() {
+        return "Machine {" +
+                "typeId: " + typeId +
+                ", size: " + size +
+                ", penality: " + penality +
+                '}';
     }
 }

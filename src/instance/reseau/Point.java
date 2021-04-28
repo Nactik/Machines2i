@@ -59,10 +59,10 @@ public class Point {
 
     @Override
     public String toString() {
-        return "Point{" +
-                "id=" + id +
-                ", x=" + x +
-                ", y=" + y +
-                '}';
+        return "Point {" +
+                "id: " + id +
+                ", x: " + x +
+                ", y: " + y +
+                "}";
     }
 }
