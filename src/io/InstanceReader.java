@@ -5,7 +5,6 @@
  */
 package io;
 
-// TO CHECK : import des classes Instance, Client, Depot et Point
 import instance.Instance;
 import instance.model.Demande;
 import instance.model.Technicien;
@@ -29,10 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Cette classe permet de lire une instance pour le projet de POO des LE4 SI
- * 
- * Les instances sont fournies sur moodle au format ".vrp".
- * Ne pas oublier de mettre les instructions dans le bon ordre
+ * Cette classe permet de lire une instance
  */
 public class InstanceReader {
     /**
@@ -42,8 +38,7 @@ public class InstanceReader {
     
     /**
      * Constructeur par donnee du chemin du fichier d'instance.
-     * @param inputPath le chemin du fichier d'instance, qui doit se terminer 
-     * par l'extension du fichier (.xml).
+     * @param inputPath le chemin du fichier d'instance
      * @throws ReaderException lorsque le fichier n'est pas au bon format ou 
      * ne peut pas etre ouvert.
      */
@@ -70,8 +65,8 @@ public class InstanceReader {
             BufferedReader br = new BufferedReader(f);
 
             String nom = lireNom(br);
-            int nbDays = lireDays(br);
 
+            int nbDays = lireLabel(br, "DAYS =");
             int truckCapacity = lireLabel(br,"TRUCK_CAPACITY =");
             int truckMaxDistance = lireLabel(br,"TRUCK_MAX_DISTANCE =");
 
@@ -116,6 +111,12 @@ public class InstanceReader {
         }
     }
 
+    /**
+     * Permet d'atteindre la ligne contenant le label désiré
+     * @param br lecteur courant du fichier d'instance
+     * @param label le label à rechercher
+     * @throws IOException
+     */
     private void waitLine(BufferedReader br,String label) throws IOException {
         String line = null;
         line = br.readLine();
@@ -123,9 +124,10 @@ public class InstanceReader {
             line = br.readLine();
         }
     }
+
     /**
      * Lecture du nom de l'instance.
-     * La ligne dans le fichier doit commencer par "NAME :"
+     * La ligne dans le fichier doit commencer par "NAME ="
      * @param br lecteur courant du fichier d'instance
      * @return le nom de l'instance
      * @throws IOException 
@@ -141,23 +143,12 @@ public class InstanceReader {
     }
 
     /**
-     * Lecture du nb de jours de l'instance.
-     * La ligne dans le fichier doit commencer par "DAYS ="
+     * Lis la valeur associée au label passé en paramètre
      * @param br lecteur courant du fichier d'instance
-     * @return le nombre de jours
+     * @param label le label désiré
+     * @return la valeur associée au label
      * @throws IOException
      */
-    private int lireDays(BufferedReader br) throws IOException{
-        String line = br.readLine();
-        while(!line.contains("DAYS ="))
-            line = br.readLine();
-
-        line = line.replace(" ", "");
-        line = line.replace("DAYS=", "");
-
-        return Integer.parseInt(line);
-    }
-
     private int lireLabel(BufferedReader br, String label) throws IOException{
         String ligne = br.readLine();
         while(!ligne.contains(label)) {
@@ -170,9 +161,7 @@ public class InstanceReader {
 
     /**
      * Lecture des coordonees des points.
-     * La section dans le fichier doit commencer par "NODE_COORD_SECTION"
-     * puis chaque ligne contient : id, abscisse, ordonnee.
-     * La section se termine par "DEMAND_SECTION"
+     * Chaque ligne contient : id, abscisse, ordonnee.
      * @param br lecteur courant du fichier d'instance
      * @return tous les points de l'instance, avec des ids uniques
      * @throws IOException 
@@ -190,28 +179,25 @@ public class InstanceReader {
     }
 
     /**
-     * Lecture d'un point sur une ligne.
+     * Lecture d'un point de coordonnées sur une ligne.
      * @param ligne ligne du fichier d'instance contenant un point avec : id,
      * abscisse, ordonnee
-     * @return un point (client avec demande de 0)
-     * @throws IOException
+     * @return un point
      * @throws NumberFormatException
      */
-    private Point lireUnPoint(String ligne) throws IOException, NumberFormatException {
+    private Point lireUnPoint(String ligne) throws NumberFormatException {
         ligne = ligne.strip();
         String[] values = ligne.split(" ");
         int id = Integer.parseInt(values[0]);
         int x = Integer.parseInt(values[1]);
         int y = Integer.parseInt(values[2]);
-        // TO CHECK : constructeur de la classe Client
-        // ordre des paramètres : quantite, identifiant, abscisse, ordonnee
-        return new Client(id,x,y);
+
+        return new Point(id,x,y);
     }
     
     /**
      * Lecture des demandes des clients.
      * Cette methode doit etre appelee juste apres la methode lirePoints.
-     * La lecture se termine par la ligne "DEPOT_SECTION".
      * Seuls les clients avec une demande strictement positive sont renvoyes.
       * @param br le lecteur courant du fichier d'instance
       * @param points l'ensemble des points (lus avec la methode lirePoints)
@@ -230,23 +216,19 @@ public class InstanceReader {
              }
              ligne = br.readLine();
          }
-         return new ArrayList<Client>(clients.values());
+         return new ArrayList<>(clients.values());
      }
     
     /**
-     * Lecture d'un client avec sa demande.
-     * A partir de l'id du client, on recupere le point correspondant, et on cree
-     * un client avec les ccaracteristiques du point et sa demande.
+     * Lecture d'un client avec ses informations associées.
      * @param ligne ligne du fichier de texte dans laquelle on a l'id du client
-     * et sa demande
      * @param points tous les points de l'instance
      * @return un client avec demande positive, null si la demande est negative
      * ou nulle
-     * @throws IOException
      * @throws NumberFormatException
      */
     private Client lireUneDemande(String ligne, Map<Integer, Point> points, Map<Integer, Client> clients)
-            throws IOException, NumberFormatException {
+            throws NumberFormatException {
 
         String[] values = ligne.split(" ");
         int idDemand = Integer.parseInt(values[0]);
@@ -270,24 +252,38 @@ public class InstanceReader {
         return c;
     }
 
-    private Entrepot lireEntrepot(Map<Integer, Point> points) throws IOException {
+    /**
+     * Lecture de l'entrepot
+     * @param points l'ensemble des points enregistrés
+     * @return la localisation de l'entrpot
+     */
+    private Entrepot lireEntrepot(Map<Integer, Point> points) {
         Point p = points.get(1);
         return new Entrepot(p.getId(), p.getX(), p.getY());
     }
 
+    /**
+     * Récupére la liste des machines et leurs informations associées
+     * @param br le lecteur courant du fichier d'instance
+     * @return l'ensemble des machines
+     * @throws IOException
+     */
     private List<Machine> lireMachines(BufferedReader br) throws IOException {
         List<Machine> machines = new ArrayList();
         String ligne = br.readLine();
         while(ligne.isEmpty()) {
             Machine m = lireUneMachine(ligne);
-            if(m != null){
-                machines.add(m);
-            }
+            machines.add(m);
             ligne  = br.readLine();
         }
         return machines;
     }
 
+    /**
+     * Lecture de une machine
+     * @param ligne la ligne a traiter
+     * @return la machine
+     */
     private Machine lireUneMachine(String ligne) {
         String[] values = ligne.split(" ");
         int typeId = Integer.parseInt(values[0]);
@@ -296,6 +292,13 @@ public class InstanceReader {
         return new Machine(typeId, size, penality);
     }
 
+    /**
+     * Lecture des techniciens et de leurs informations associés
+     * @param br le lecteur courant du fichier d'instance
+     * @param points l'ensemble des points déjà traités
+     * @return l'ensemble des techniciens
+     * @throws IOException
+     */
     private List<Technicien> lireTechnicians(BufferedReader br, Map<Integer, Point> points)
             throws IOException {
         List<Technicien> technicians = new ArrayList<>();
@@ -310,8 +313,15 @@ public class InstanceReader {
         return technicians;
     }
 
+    /**
+     * Lecture d'un technicien
+     * @param ligne la ligne a traiter
+     * @param points l'ensemble des points déjà traités
+     * @return l'ensemble des techniciens
+     * @throws NumberFormatException
+     */
     private Technicien lireUnTechnician(String ligne, Map<Integer, Point> points)
-            throws IOException, NumberFormatException {
+            throws NumberFormatException {
         String[] values = ligne.split(" ");
         int idTechnicien = Integer.parseInt(values[0]);
         Point localisation = points.get(Integer.parseInt(values[1]));
@@ -329,11 +339,6 @@ public class InstanceReader {
     }
 
 
-
-    /**
-     * Test de lecture d'une instance.
-     * @param args
-     */
     public static void main(String[] args) {
         try {
             InstanceReader reader = new InstanceReader("exemple/testInstance.txt");
