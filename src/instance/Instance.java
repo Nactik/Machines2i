@@ -1,5 +1,7 @@
 package instance;
 
+import instance.model.Machine;
+import instance.model.Technicien;
 import instance.reseau.Client;
 import instance.reseau.Entrepot;
 
@@ -21,10 +23,11 @@ public class Instance {
     private int techCost;
     private Entrepot entrepot;
     private Map<Integer,Client> clients;
-
+    private Map<Integer, Technicien> technicians;
+    private List<Machine> machines;
 
     public Instance(String name, int nbDay, int truckCapacity, int distMaxTruck, int truckDistCost,
-                    int truckDayCost, int truckCost, int techDayCost, int techDistCost, int techCost,Entrepot entrepot) {
+                    int truckDayCost, int truckCost, int techDayCost, int techDistCost, int techCost, Entrepot entrepot, List<Machine> machines) {
         this.name = name;
         this.nbDay = nbDay;
         this.truckCapacity = truckCapacity;
@@ -37,6 +40,8 @@ public class Instance {
         this.techCost = techCost;
         this.entrepot = entrepot;
         this.clients = new LinkedHashMap<>();
+        this.technicians = new LinkedHashMap<>();
+        this.machines = machines;
     }
 
     public boolean addClient(Client clientToAdd){
@@ -54,21 +59,27 @@ public class Instance {
         return true;
     }
 
+    public Map<Integer, Technicien> getTechnicians() {
+        return technicians;
+    }
+
     @Override
     public String toString() {
-        return "Instance{" +
-                "name='" + name + '\'' +
-                ", nbDay=" + nbDay +
-                ", truckCapacity=" + truckCapacity +
-                ", distMaxTruck=" + distMaxTruck +
-                ", truckDistCost=" + truckDistCost +
-                ", truckDayCost=" + truckDayCost +
-                ", truckCost=" + truckCost +
-                ", techDayCost=" + techDayCost +
-                ", techDistCost=" + techDistCost +
-                ", techCost=" + techCost +
-                ", entrepot=" + entrepot +
-                ", clients=" + clients +
-                '}';
+        return "Instance {" +
+                "\n\tname: " + name +
+                ",\n\tnbDay: " + nbDay +
+                ",\n\ttruckCapacity: " + truckCapacity +
+                ",\n\tdistMaxTruck: " + distMaxTruck +
+                ",\n\ttruckDistCost: " + truckDistCost +
+                ",\n\ttruckDayCost: " + truckDayCost +
+                ",\n\ttruckCost: " + truckCost +
+                ",\n\ttechDayCost: " + techDayCost +
+                ",\n\ttechDistCost: " + techDistCost +
+                ",\n\ttechCost: " + techCost +
+                ",\n\tentrepot: " + entrepot.toString() +
+                ",\n\tclients: " + clients.toString() +
+                ",\n\ttechniciens: " + technicians.toString() +
+                ",\n\tmachines: " + machines.toString() +
+                "\n}";
     }
 }
