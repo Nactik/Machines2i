@@ -1,19 +1,38 @@
 package instance.reseau;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class Point {
-    private Integer id;
+    private int id;
     private int x;
     private int y;
+    private Map<Point, Route> routeCollection;
 
-    public Point(Integer id, int x, int y) {
+    public Point(int id, int x, int y) {
         this.id = id;
         this.x = x;
         this.y = y;
+        routeCollection = new HashMap<>();
     }
 
-    public Integer getId() {
+    public boolean addRoute(Point destination){
+        if (destination == null){
+            return false;
+        }
+        Route route = new Route(this,destination);
+        this.routeCollection.put(destination,route);
+        return true;
+    }
+
+    public int getCostTo(Point destination){
+        Route route = this.routeCollection.get(destination);
+        if(route == null) return Integer.MAX_VALUE;
+        else return route.getCost();
+    }
+
+    public int getId() {
         return id;
     }
 
@@ -30,7 +49,7 @@ public class Point {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Point point = (Point) o;
-        return id.equals(point.id);
+        return id == point.id;
     }
 
     @Override
@@ -40,10 +59,10 @@ public class Point {
 
     @Override
     public String toString() {
-        return "Point{" +
-                "id=" + id +
-                ", x=" + x +
-                ", y=" + y +
-                '}';
+        return "Point {" +
+                "id: " + id +
+                ", x: " + x +
+                ", y: " + y +
+                "}";
     }
 }

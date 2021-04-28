@@ -1,18 +1,35 @@
 package instance.reseau;
 
+import instance.model.Demande;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Client extends Point{
-    private int demande;
+    private List<Demande> demandes;
 
-    public Client(Integer id, int x, int y, int demande) {
+    public Client(Integer id, int x, int y, List<Demande> demandes) {
         super(id, x, y);
-        this.demande = demande;
+        this.demandes = demandes;
+    }
+    public Client(Integer id, int x, int y) {
+        super(id, x, y);
+        this.demandes = new ArrayList<>();
+    }
+    
+    public boolean addDemande(Demande demandeToAdd){
+        demandes.add(demandeToAdd);
+        return true;
+    }
+    public boolean deleteDemande(Demande demandeToDelete){
+        demandes.remove(demandeToDelete);
+        return true;
+    }
+    public List<Demande> getDemandes() {
+        return demandes;
     }
 
-    public int getDemande() {
-        return demande;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -31,8 +48,8 @@ public class Client extends Point{
     @Override
     public String toString() {
         return "Client {" +
-                "demande=" + demande + " " +
-                super.toString() +
-                " }";
+                "point: " + super.toString() +
+                ", demande: " + demandes +
+                "}";
     }
 }
