@@ -49,8 +49,7 @@ public class InstanceReader {
         if (!inputPath.endsWith(".txt")) {
             throw new FormatFileException("txt", "txt");
         }
-        String instanceName = inputPath;
-        this.instanceFile = new File(instanceName);
+        this.instanceFile = new File(inputPath);
     }
     
     /**
@@ -92,13 +91,16 @@ public class InstanceReader {
 
             List<Technicien> technicians = lireTechnicians(br, points);
 
-            // TO CHECK : constructeur de la classe Instance
             Instance instance = new Instance(nom, nbDays, truckCapacity, truckMaxDistance, truckDistanceCost, truckDayCost,
-                    truckCost, techDayCost, techDistCost, techCost, entrepot);
+                    truckCost, techDayCost, techDistCost, techCost, entrepot, machines);
 
             for(Client c : clients) {
-                // TO CHECK : ajout d'un client dans la classe Instance
                 instance.addClient(c);
+            }
+
+            Map<Integer, Technicien> technicansMap = instance.getTechnicians();
+            for(Technicien t : technicians) {
+                technicansMap.put(t.getId(), t);
             }
             br.close();
             f.close();
@@ -138,7 +140,7 @@ public class InstanceReader {
             ligne = br.readLine();
         }
         ligne = ligne.replace(" ", "");
-        ligne = ligne.replace("NAME =", "");
+        ligne = ligne.replace("NAME=", "");
         return ligne;
     }
 
@@ -271,7 +273,7 @@ public class InstanceReader {
     private List<Machine> lireMachines(BufferedReader br) throws IOException {
         List<Machine> machines = new ArrayList();
         String ligne = br.readLine();
-        while(ligne.isEmpty()) {
+        while(!ligne.isEmpty()) {
             Machine m = lireUneMachine(ligne);
             machines.add(m);
             ligne  = br.readLine();
@@ -327,13 +329,13 @@ public class InstanceReader {
         Point localisation = points.get(Integer.parseInt(values[1]));
         int distanceMax = Integer.parseInt(values[2]);
         int demandeMax = Integer.parseInt(values[3]);
-        Map<Integer,Integer> canInstall = new LinkedHashMap<>();
+        Map<Integer,Boolean> canInstall = new LinkedHashMap<>();
 
         for (int i = 4; i < values.length; i++) {
-            canInstall.put(i-3,Integer.parseInt(values[i]));
+            canInstall.put(i-3, Integer.parseInt(values[i]) != 0 ? true : false);
         }
 
-        Technicien technicien = new Technicien(idTechnicien, localisation, distanceMax, demandeMax,canInstall);
+        Technicien technicien = new Technicien(idTechnicien, localisation, distanceMax, demandeMax, canInstall);
 
         return technicien;
     }
@@ -342,10 +344,9 @@ public class InstanceReader {
     public static void main(String[] args) {
         try {
             InstanceReader reader = new InstanceReader("exemple/testInstance.txt");
-            System.out.println(reader.readInstance().toString());
-            System.out.println("Instance lue avec success !");
             Instance instance = reader.readInstance();
             System.out.println(instance);
+            System.out.println("Instance lue avec success !");
         } catch (ReaderException ex) {
             System.out.println(ex.getMessage());
         }
