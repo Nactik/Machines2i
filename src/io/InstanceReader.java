@@ -62,7 +62,7 @@ public class InstanceReader {
         try{
             FileReader f = new FileReader(this.instanceFile.getAbsolutePath());
             BufferedReader br = new BufferedReader(f);
-
+            String dataSet = lireDataset(br);
             String nom = lireNom(br);
 
             int nbDays = lireLabel(br, "DAYS =");
@@ -91,7 +91,7 @@ public class InstanceReader {
 
             List<Technicien> technicians = lireTechnicians(br, points);
 
-            Instance instance = new Instance(nom, nbDays, truckCapacity, truckMaxDistance, truckDistanceCost, truckDayCost,
+            Instance instance = new Instance(dataSet,nom, nbDays, truckCapacity, truckMaxDistance, truckDistanceCost, truckDayCost,
                     truckCost, techDayCost, techDistCost, techCost, entrepot, machines);
 
             for(Client c : clients) {
@@ -126,7 +126,21 @@ public class InstanceReader {
             line = br.readLine();
         }
     }
-
+    /**
+     * Lecture du dataset de l'instance.
+     * La ligne dans le fichier doit commencer par "NAME ="
+     * @param br lecteur courant du fichier d'instance
+     * @return le dataset de l'instance
+     * @throws IOException
+     */
+    private String lireDataset(BufferedReader br) throws IOException {
+        String ligne = br.readLine();
+        while(!ligne.contains("DATASET =")) {
+            ligne = br.readLine();
+        }
+        ligne = ligne.replace("DATASET = ", "");
+        return ligne;
+    }
     /**
      * Lecture du nom de l'instance.
      * La ligne dans le fichier doit commencer par "NAME ="

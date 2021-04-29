@@ -11,6 +11,7 @@ import java.util.Map;
 
 import java.util.LinkedHashMap;
 public class Instance {
+    private String dataset;
     private String name;
     private int nbDay;
     private int truckCapacity;
@@ -26,8 +27,9 @@ public class Instance {
     private Map<Integer, Technicien> technicians;
     private List<Machine> machines;
 
-    public Instance(String name, int nbDay, int truckCapacity, int distMaxTruck, int truckDistCost,
+    public Instance(String dataset,String name, int nbDay, int truckCapacity, int distMaxTruck, int truckDistCost,
                     int truckDayCost, int truckCost, int techDayCost, int techDistCost, int techCost, Entrepot entrepot, List<Machine> machines) {
+        this.dataset = dataset;
         this.name = name;
         this.nbDay = nbDay;
         this.truckCapacity = truckCapacity;
@@ -63,9 +65,14 @@ public class Instance {
         return technicians;
     }
 
+    public Map<Integer, Client> getClients() {
+        return clients;
+    }
+
     @Override
     public String toString() {
         return "Instance {" +
+                "\n\tdataSet: " + dataset +
                 "\n\tname: " + name +
                 ",\n\tnbDay: " + nbDay +
                 ",\n\ttruckCapacity: " + truckCapacity +
