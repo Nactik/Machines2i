@@ -77,6 +77,30 @@ public class Instance {
         return dataset;
     }
 
+    public int getTruckCapacity() {
+        return truckCapacity;
+    }
+
+    public int getDistMaxTruck() {
+        return distMaxTruck;
+    }
+
+    public int getTruckDistCost() {
+        return truckDistCost;
+    }
+
+    public int getTruckDayCost() {
+        return truckDayCost;
+    }
+
+    public int getTruckCost() {
+        return truckCost;
+    }
+
+    public List<Machine> getMachines() {
+        return machines;
+    }
+
     @Override
     public String toString() {
         return "Instance {" +
