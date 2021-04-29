@@ -34,6 +34,7 @@ public class Solution {
     public Solution(Instance instance) {
         super();
         this.instance = instance;
+        days = new HashMap<Integer,LinkedList<Tournee>>();
     }
     public Solution(Solution solution){
         this.instance = solution.instance;
@@ -56,6 +57,35 @@ public class Solution {
     }
 
     public void addClientNewTourneeCamion(Demande demande) {
-        TourneeCamion tourneeCamion = new TourneeCamion()
+        TourneeCamion tourneeCamion = new TourneeCamion(this.instance);
+        tourneeCamion.ajouterDemandeClient(demande);
+        addTourneeToMap(tourneeCamion,demande.getFirstDay());
+    }
+
+    private void addTourneeToMap(Tournee tournee,int jour){
+        if (!days.containsKey(jour)){
+            days.put(jour,new LinkedList<Tournee>());
+        }
+        days.get(jour).add(tournee);
+    }
+
+    @Override
+    public String toString() {
+        String string= "Solution{" +
+                "instance=" + instance +
+                ", truckDistance=" + truckDistance +
+                ", numberOfTruckDays=" + numberOfTruckDays +
+                ", numberOfTruckUsed=" + numberOfTruckUsed +
+                ", technicianDistance=" + technicianDistance +
+                ", numberOfTechnicianDays=" + numberOfTechnicianDays +
+                ", numberOfTechnicianUsed=" + numberOfTechnicianUsed +
+                ", idleMachineCost=" + idleMachineCost +
+                ", totalCost=" + totalCost +
+                "\n\t days :";
+                for(Map.Entry<Integer,LinkedList<Tournee>> entry : days.entrySet()){
+                    string += "\n\t\t day : "+entry.getKey()+" = "+entry.getValue().toString();
+                }
+                string+='}';
+        return string;
     }
 }

@@ -21,6 +21,21 @@ public class Demande extends Point {
         this.lastDay = lastDay;
     }
 
+    public int getIdMachine() {
+        return idMachine;
+    }
+
+    public int getFirstDay() {
+        return firstDay;
+    }
+
+    public int getLastDay() {
+        return lastDay;
+    }
+
+    public int getNbMachines() {
+        return nbMachines;
+    }
 
     @Override
     public boolean equals(Object o) {

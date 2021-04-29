@@ -93,6 +93,10 @@ public class Instance {
         return machines;
     }
 
+    public Entrepot getEntrepot() {
+        return entrepot;
+    }
+
     @Override
     public String toString() {
         return "Instance {" +

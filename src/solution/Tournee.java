@@ -1,5 +1,6 @@
 package solution;
 
+import instance.model.Demande;
 import instance.reseau.Client;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.List;
 
 public abstract class Tournee {
     protected int id;
+    protected List<Demande> demandes;
     protected List<Client> clients;
     protected int cost;
 

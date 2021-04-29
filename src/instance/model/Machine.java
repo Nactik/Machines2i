@@ -20,6 +20,10 @@ public class Machine {
         this.penality = penality;
     }
 
+    public int getSize() {
+        return size;
+    }
+
     @Override
     public String toString() {
         return "Machine {" +
