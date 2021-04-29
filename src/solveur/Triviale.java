@@ -26,7 +26,8 @@ public class Triviale implements Solveur{
             }
         }
         for(Demande demande : listeDemande){
-            solution.NewTourneeCamion(demande);
+           // solution.NewTourneeCamion(demande);
         }
+        return solution;
     }
 }

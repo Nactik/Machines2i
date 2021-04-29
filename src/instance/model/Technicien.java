@@ -8,7 +8,6 @@ import java.util.Objects;
 public class Technicien {
     private int id;
     private Point localisation;
-    private int distance;
     private final int maxDistance;
     private final int maxDemand;
     private Map<Integer,Boolean> canInstallMachine;
@@ -43,7 +42,6 @@ public class Technicien {
         return "Technicien {" +
                 "id: " + id +
                 ", localisation: " + localisation +
-                ", distance: " + distance +
                 ", maxDistance: " + maxDistance +
                 ", maxDemand: " + maxDemand +
                 ", canInstallMachine: " + canInstallMachine +

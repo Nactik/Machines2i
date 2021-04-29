@@ -1,5 +1,7 @@
 package io;
 
+import instance.model.Demande;
+import instance.model.Technicien;
 import solution.Solution;
 import solution.Tournee;
 import solution.TourneeCamion;
@@ -11,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SolutionWriter {
 
@@ -44,67 +47,35 @@ public class SolutionWriter {
             pw.println("DAYS = " + key);
 
             List<TourneeCamion> tourneeTruck = new LinkedList<TourneeCamion>();
-            List<TourneeTechnicien> tourneeTechnician = new LinkedList<TourneeTechnician>();
+            List<TourneeTechnicien> tourneeTechnician = new LinkedList<TourneeTechnicien>();
             for(Tournee t : value){
                 if(t instanceof TourneeCamion){
                     tourneeTruck.add((TourneeCamion) t);
                 } else {
-                    tourneeTechnician.add((TourneeTechnician) t);
+                    tourneeTechnician.add((TourneeTechnicien) t);
                 }
             }
             pw.println("NUMBER_OF_TRUCKS = " + tourneeTruck.size());
             if(tourneeTruck.size() > 0){
-                for()
+                for(TourneeCamion t : tourneeTruck){
+                    pw.println(t.getCamion().getId() + getDemandeSequence(t));
+                }
             }
-            pw.println("NUMBER_OF_TECHNICIANS = " + nbTechnicians);
+
+            pw.println("NUMBER_OF_TECHNICIANS = " + tourneeTechnician.size());
             if(tourneeTechnician.size() > 0){
-                for()
+                for(TourneeTechnicien t: tourneeTechnician){
+                    pw.println(t.getTechnician().getId() + " " + getDemandeSequence(t));
+                }
             }
         });
 
+        pw.close();
     }
 
-    /**
-     * DATASET = VeRoLog solver challenge 2019 OK
-     * NAME = testInstance OK
-     * TRUCK_DISTANCE = 394 OK
-     * NUMBER_OF_TRUCK_DAYS = 3 OK
-     * NUMBER_OF_TRUCKS_USED = 1 OK
-     * TECHNICIAN_DISTANCE = 312 OK
-     * NUMBER_OF_TECHNICIAN_DAYS = 5 OK
-     * NUMBER_OF_TECHNICIANS_USED = 3 OK
-     * IDLE_MACHINE_COSTS = 400 OK
-     * TOTAL_COST = 601706 OK
-     * DAY = 1
-     * NUMBER_OF_TRUCKS = 0
-     * NUMBER_OF_TECHNICIANS = 0
-     * DAY = 2
-     * NUMBER_OF_TRUCKS = 1
-     * 1 5 3
-     * NUMBER_OF_TECHNICIANS = 0
-     * DAY = 3
-     * NUMBER_OF_TRUCKS = 1
-     * 1 6 7 0 1 2
-     * NUMBER_OF_TECHNICIANS = 1
-     * 1 5
-     * DAY = 4
-     * NUMBER_OF_TRUCKS = 0
-     * NUMBER_OF_TECHNICIANS = 3
-     * 1 3 2
-     * 2 1
-     * 4 7
-     * DAY = 5
-     * NUMBER_OF_TRUCKS = 1
-     * 1 4
-     * NUMBER_OF_TECHNICIANS = 0
-     * DAY = 6
-     * NUMBER_OF_TRUCKS = 0
-     * NUMBER_OF_TECHNICIANS = 1
-     * 4 6 4
-     * DAY = 7
-     * NUMBER_OF_TRUCKS = 0
-     * NUMBER_OF_TECHNICIANS = 0
-     */
-
-
+    private String getDemandeSequence(Tournee t){
+        return  t.getDemandes().stream()
+                .map(d -> String.valueOf(d.getId()))
+                .collect(Collectors.joining(" "));
+    }
 }

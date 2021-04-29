@@ -1,5 +1,6 @@
 package solution;
 
+import instance.model.Demande;
 import instance.reseau.Client;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ public abstract class Tournee {
     protected int id;
     protected List<Client> clients;
     protected int cost;
+    protected List<Demande> demandes;
 
     public Tournee() {
         this.clients = new ArrayList<>();
@@ -21,4 +23,8 @@ public abstract class Tournee {
     }
 
     public abstract int evalCost();
+
+    public List<Demande> getDemandes() {
+        return demandes;
+    }
 }
