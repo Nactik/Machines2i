@@ -20,16 +20,21 @@ public class TourneeCamion extends Tournee{
     private int maxDistance;
     private List<Machine> listeMachine;
     private Entrepot entrepot;
+
     public TourneeCamion() {
         super();
         this.demandes = new ArrayList<>();
     }
+
     public TourneeCamion(Instance instance){
         super();
+        this.demandes = new ArrayList<>();
         distance = 0;
-        capacity = instance.getTruckCapacity();
+        capacity = 0;
         listeMachine = instance.getMachines();
         entrepot = instance.getEntrepot();
+        maxCapacity = instance.getTruckCapacity();
+        maxDistance = instance.getDistMaxTruck();
 
     }
     public TourneeCamion(int id, List<Client> clients, int cost, List<Demande> demandes) {
@@ -54,6 +59,7 @@ public class TourneeCamion extends Tournee{
         ajouterCoutTotal(demande);
         capacity += getMachineSizeById(demande.getIdMachine())*demande.getNbMachines();
         demandes.add(demande);
+        System.out.println("yoyoy "+this.demandes);
         return true;
 
     }
