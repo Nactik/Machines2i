@@ -1,19 +1,20 @@
 package instance.model;
 
 import instance.reseau.Client;
+import instance.reseau.Point;
 
-import java.awt.*;
+
 import java.util.Objects;
 
-public class Demande {
-    private int id;
+public class Demande extends Point {
     private final int idMachine;
     private final int nbMachines;
     private final int firstDay;
     private final int lastDay;
 
-    public Demande(int id, int firstDay, int lastDay, int idMachine,int nbMachines) {
-        this.id = id;
+
+    public Demande(int id, int x, int y,int firstDay, int lastDay, int idMachine,int nbMachines) {
+        super(id,x,y);
         this.idMachine = idMachine;
         this.nbMachines = nbMachines;
         this.firstDay = firstDay;
@@ -26,18 +27,18 @@ public class Demande {
         if (this == o) return true;
         if (!(o instanceof Demande)) return false;
         Demande demande = (Demande) o;
-        return id == demande.id;
+        return this.getId() == demande.getId();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(this.getId());
     }
 
     @Override
     public String toString() {
         return "Demande {" +
-                "id: " + id +
+                "id: " + this.getId()+
                 ", idMachine: " + idMachine +
                 ", nbMachines: " + nbMachines +
                 ", firstDay: " + firstDay +
