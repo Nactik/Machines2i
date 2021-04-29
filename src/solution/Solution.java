@@ -58,4 +58,44 @@ public class Solution {
     public void addClientNewTourneeCamion(Demande demande) {
 
     }
+
+    public Instance getInstance() {
+        return instance;
+    }
+
+    public int getTruckDistance() {
+        return truckDistance;
+    }
+
+    public int getNumberOfTruckDays() {
+        return numberOfTruckDays;
+    }
+
+    public int getNumberOfTruckUsed() {
+        return numberOfTruckUsed;
+    }
+
+    public int getTechnicianDistance() {
+        return technicianDistance;
+    }
+
+    public int getNumberOfTechnicianDays() {
+        return numberOfTechnicianDays;
+    }
+
+    public int getNumberOfTechnicianUsed() {
+        return numberOfTechnicianUsed;
+    }
+
+    public int getIdleMachineCost() {
+        return idleMachineCost;
+    }
+
+    public int getTotalCost() {
+        return totalCost;
+    }
+
+    public HashMap<Integer, LinkedList<Tournee>> getDays() {
+        return days;
+    }
 }
