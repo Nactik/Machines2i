@@ -44,12 +44,27 @@ public class TourneeCamion extends Tournee{
         if(demand == null){
             return false;
         }
-        if(!this.possAjout(demand)) {
+        if(!this.isInsertionValide(this.demandes.size(), demand)) {
             return false;
         }
-        this.ajouterCoutTotal(demand);
-        this.capacity += this.getMachineSizeById(demand.getIdMachine())*demand.getNbMachines();
-        this.demandes.add(demand);
+
+        if(!this.majDistTotal(demand)) return false; //maj la distance
+        this.capacity += this.getMachineSizeById(demand.getIdMachine())*demand.getNbMachines(); //maj la capacite
+        this.demandes.add(demand); //maj les demandes
+
+        return true;
+    }
+
+    /**
+     * Maj le cout total de la tournée en fonction de la demnade passé en param
+     * @param demand la demand a traiter
+     * @return true si ok, false sinon
+     */
+    private boolean majDistTotal(Demande demand) {
+        int distTemp = deltaDistInsertion(this.demandes.size(), demand);
+        if(distTemp == Integer.MAX_VALUE)
+            return false;
+        this.distance += distTemp;
         return true;
     }
 
@@ -59,7 +74,7 @@ public class TourneeCamion extends Tournee{
      * @param demand la demande à insérer
      * @return le cout
      */
-    private int deltaCoutInsertion(int position, Demande demand) {
+    private int deltaDistInsertion(int position, Demande demand) {
         if (!isPositionInsertionValide(position) || demand == null){
             return Integer.MAX_VALUE;
         }
@@ -77,14 +92,6 @@ public class TourneeCamion extends Tournee{
 
         //sinon on ajoute la route entre le prec et la demande, la demande et le futur suivant (current) et on suppr le prec vers le current
         return prec.getCostTo(demand) + demand.getCostTo(current) - prec.getCostTo(current);
-    }
-
-    private boolean ajouterCoutTotal(Demande demande) {
-        int distTemp = deltaCoutInsertion(this.demandes.size(), demande);
-        if(distTemp == Integer.MAX_VALUE)
-            return false;
-        distance += distTemp;
-        return true;
     }
 
     /**
@@ -123,7 +130,6 @@ public class TourneeCamion extends Tournee{
         return demandes.get(position);
     }
 
-
     /**
      * Vérifie si la position à laquelle insérée la demande est correcte
      * @param position à laquelle inserer la demande
@@ -141,14 +147,15 @@ public class TourneeCamion extends Tournee{
 
     /**
      * Vérifie si l'ajout est possible dans la tournée en cours
+     * @param position la position à laquelle ajouter la demande
      * @param demand la demande à ajouter à la tournée
      * @return
      */
-    public boolean possAjout(Demande demand){
-        if(this.capacity + (getMachineSizeById(demand.getIdMachine())*demand.getNbMachines()) > this.maxCapacity){
+    public boolean isInsertionValide(int position, Demande demand){
+        if(this.capacity + (getMachineSizeById(demand.getIdMachine())*demand.getNbMachines()) > this.maxCapacity)
             return false;
-        }
-        // TO DO : Ajouter la vérification de distance
+        if(this.distance + this.deltaDistInsertion(position, demand) > this.maxDistance)
+            return false;
         return true;
     }
 

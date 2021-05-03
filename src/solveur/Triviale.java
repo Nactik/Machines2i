@@ -26,7 +26,7 @@ public class Triviale implements Solveur{
         for(Map.Entry<Integer,Client> entry : instance.getClients().entrySet()){
             for (Demande demande : entry.getValue().getDemandes()){
                 listeDemande.add(demande);
-                solution.ajoutDemandNewTournee(demande);
+                solution.addDemandNewTourneeTruck(demande);
             }
         }
         return solution;

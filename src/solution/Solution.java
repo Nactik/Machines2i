@@ -55,7 +55,7 @@ public class Solution {
      * Ajoute une demande à une nouvelle tournée de camion
      * @param demand
      */
-    public void ajoutDemandNewTournee(Demande demand) {
+    public void addDemandNewTourneeTruck(Demande demand) {
         TourneeCamion tourneeCamion = new TourneeCamion(this.instance);
         tourneeCamion.ajouteDemandeClient(demand);
         this.addTourneeToMap(tourneeCamion, demand.getFirstDay());
