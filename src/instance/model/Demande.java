@@ -12,14 +12,15 @@ public class Demande {
     private final int nbMachines;
     private final int firstDay;
     private final int lastDay;
+    private final Client client;
 
-
-    public Demande(int id,int firstDay, int lastDay, int idMachine,int nbMachines) {
+    public Demande(int id,int firstDay, int lastDay, int idMachine, int nbMachines, Client client) {
         this.id = id;
         this.idMachine = idMachine;
         this.nbMachines = nbMachines;
         this.firstDay = firstDay;
         this.lastDay = lastDay;
+        this.client = client;
     }
 
     public int getId() {
@@ -40,6 +41,10 @@ public class Demande {
 
     public int getNbMachines() {
         return nbMachines;
+    }
+
+    public Client getClient() {
+        return client;
     }
 
     @Override

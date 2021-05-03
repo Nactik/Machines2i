@@ -53,11 +53,11 @@ public class Solution {
 
     /**
      * Ajoute une demande à une nouvelle tournée de camion
-     * @param demand
+     * @param demand la demande à traiter
      */
     public void addDemandNewTourneeTruck(Demande demand) {
-        TourneeCamion tourneeCamion = new TourneeCamion(this.instance);
-        tourneeCamion.ajouteDemandeClient(demand);
+        TourneeCamion tourneeCamion = new TourneeCamion(this.instance, demand.getFirstDay()); // TODO: changer, fonctionne pour une nouvelle tournée uniquement
+        tourneeCamion.addDemand(demand);
         this.addTourneeToMap(tourneeCamion, demand.getFirstDay());
     }
 
@@ -68,18 +68,24 @@ public class Solution {
     public boolean addDemandNewTourneeTech(Demande demand){
         if(demand == null) return false;
 
+        int deliveryDay = demand.getFirstDay();
+        int installationDay = deliveryDay + 1;
         Technicien tech = null;
 
-//        for(HashMap.Entry<Integer, Technicien> entry : instance.getTechnicians().entrySet()){
-//
-//        }
+        for(Technicien t : this.instance.getTechnicians().values()){
+            if(t.getMachines().contains(demand.getIdMachine())
+                && t.isAvailable(demand, installationDay))
+                tech = t;
+        }
 
-        TourneeTechnicien tourneeTech = new TourneeTechnicien();
+        if(tech == null) return false;
+
+        TourneeTechnicien tourneeTech = new TourneeTechnicien(this.instance, tech, deliveryDay);
         if(tourneeTech.addDemand(demand)){
-            this.addTourneeToMap(tourneeTech, demand.getFirstDay();
+            this.addTourneeToMap(tourneeTech, deliveryDay);
             return true;
         }
-        return false;
+        return true;
     }
 
     /**

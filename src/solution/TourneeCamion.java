@@ -1,9 +1,9 @@
 package solution;
 
 import instance.Instance;
-import instance.model.Camion;
 import instance.model.Demande;
 import instance.model.Machine;
+import instance.reseau.Client;
 import instance.reseau.Entrepot;
 import instance.reseau.Point;
 
@@ -12,25 +12,21 @@ import java.util.List;
 
 public class TourneeCamion extends Tournee{
 
-    private Camion camion;
-    private int distance;
     private int capacity;
-    private int maxCapacity;
     private int maxDistance;
+    private int maxCapacity;
     private List<Machine> listeMachine;
-    private Entrepot entrepot;
 
     public TourneeCamion() {
         super();
     }
 
-    public TourneeCamion(Instance instance){
-        super();
+    public TourneeCamion(Instance instance, int day){
+        super(instance.getEntrepot(), day);
         this.demandes = new ArrayList<>();
         distance = 0;
         capacity = 0;
         listeMachine = instance.getMachines();
-        entrepot = instance.getEntrepot();
         maxCapacity = instance.getTruckCapacity();
         maxDistance = instance.getDistMaxTruck();
     }
@@ -40,11 +36,12 @@ public class TourneeCamion extends Tournee{
      * @param demand la demande à ajouter à la tournée
      * @return true si OK, false sinon
      */
-    public boolean ajouteDemandeClient(Demande demand){
+    @Override
+    public boolean addDemand(Demande demand){
         if(demand == null){
             return false;
         }
-        if(!this.isInsertionValide(this.demandes.size(), demand)) {
+        if(!this.isInsertionValide(this.demandes.size(), demand)) { //ajout a la fin car solution triviale
             return false;
         }
 
@@ -79,19 +76,20 @@ public class TourneeCamion extends Tournee{
             return Integer.MAX_VALUE;
         }
 
+        Client c = demand.getClient();
         Point prec = this.getPrec(position);
         Point current = this.getCurrent(position);
 
         //si les routes existent pas
-        if(prec.getCostTo(demand) == Integer.MAX_VALUE || demand.getCostTo(current) == Integer.MAX_VALUE)
+        if(prec.getDistTo(c) == Integer.MAX_VALUE || c.getDistTo(current) == Integer.MAX_VALUE)
             return Integer.MAX_VALUE;
 
         //si prec == current -> il n'y a que le depot
         if(prec.equals(current))
-            return prec.getCostTo(demand) + demand.getCostTo(prec);
+            return prec.getDistTo(c) + c.getDistTo(current);
 
         //sinon on ajoute la route entre le prec et la demande, la demande et le futur suivant (current) et on suppr le prec vers le current
-        return prec.getCostTo(demand) + demand.getCostTo(current) - prec.getCostTo(current);
+        return prec.getDistTo(c) + c.getDistTo(current) - prec.getDistTo(current);
     }
 
     /**
@@ -113,7 +111,7 @@ public class TourneeCamion extends Tournee{
         if (position == 0 || this.demandes.size() == 0){
             return entrepot;
         }
-        return demandes.get(position-1);
+        return demandes.get(position-1).getClient();
     }
 
     /**
@@ -127,7 +125,7 @@ public class TourneeCamion extends Tournee{
         if(position == this.demandes.size()){
             return this.entrepot;
         }
-        return demandes.get(position);
+        return demandes.get(position).getClient();
     }
 
     /**
@@ -159,12 +157,50 @@ public class TourneeCamion extends Tournee{
         return true;
     }
 
+    public boolean check() {
+        int checkCapacity = checkCapacity();
+        int checkDist = checkDist();
+
+        return checkCapacity == this.capacity && checkCapacity <= this.maxCapacity
+                && checkDist == this.distance && checkDist <= this.maxDistance;
+    }
+
+    /**
+     * Vérifie si la capacité à correctement été calculée
+     * @return la capacité de la tournée
+     */
+    private int checkCapacity() {
+        int checkCapacity = 0;
+
+        for(Demande d: this.demandes){
+            checkCapacity += getMachineSizeById(d.getIdMachine())*d.getNbMachines();
+        }
+
+        return checkCapacity;
+    }
+
+    /**
+     * Vérifie si la distance à correctement été calculée
+     * @return la dist de la tournée
+     */
+    private int checkDist() {
+        if(this.demandes.isEmpty()) return 0;
+
+        int checkDist = 0;
+
+        checkDist += this.entrepot.getDistTo(this.demandes.get(0).getClient());
+        for(int i=0; i<this.demandes.size()-1; i++){
+            checkDist += this.demandes.get(i).getClient().getDistTo(this.demandes.get(i+1).getClient());
+        }
+        checkDist += this.demandes.get(this.demandes.size()-1).getClient().getDistTo(this.entrepot);
+
+        return checkDist;
+    }
+
     @Override
     public String toString() {
         return "TourneeCamion{" +
                 "demandes=" + demandes +
-                ", cost=" + cost +
-                ", camion=" + camion +
                 ", distance=" + distance +
                 ", capacity=" + capacity +
                 ", maxCapacity=" + maxCapacity +

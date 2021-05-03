@@ -22,11 +22,10 @@ public class Triviale implements Solveur{
     @Override
     public Solution solve(Instance instance) {
         Solution solution  = new Solution(instance);
-        List<Demande> listeDemande = new LinkedList<>();
         for(Map.Entry<Integer,Client> entry : instance.getClients().entrySet()){
             for (Demande demande : entry.getValue().getDemandes()){
-                listeDemande.add(demande);
                 solution.addDemandNewTourneeTruck(demande);
+                solution.addDemandNewTourneeTech(demande);
             }
         }
         return solution;

@@ -5,19 +5,20 @@ import java.util.Objects;
 public class Route {
     private Point startPoint;
     private Point endPoint;
-    private int cost;
+    private int distance;
 
     public Route(Point startPoint, Point endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
 
-        this.cost = costCalculation(this.startPoint,this.endPoint);
+        this.distance = distCalculation(this.startPoint,this.endPoint);
     }
-    private int costCalculation(Point start,Point end){
+
+    private int distCalculation(Point start, Point end){
         int distX = start.getX() - end.getX();
         int distY = start.getY() - end.getY();
 
-        return (int)Math.round(Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2)));
+        return (int)Math.ceil(Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2)));
     }
 
     public Point getStartPoint() {
@@ -28,8 +29,8 @@ public class Route {
         return endPoint;
     }
 
-    public int getCost() {
-        return cost;
+    public int getDistance() {
+        return distance;
     }
 
     @Override
@@ -37,7 +38,7 @@ public class Route {
         return "Route{" +
                 "startPoint=" + startPoint +
                 ", endPoint=" + endPoint +
-                ", cost=" + cost +
+                ", cost=" + distance +
                 '}';
     }
 
@@ -60,10 +61,10 @@ public class Route {
         Point d3 = new Point(3, 10, 30);
         Route route = new Route(d1, d2);
 
-        System.out.println(route.getCost());
+        System.out.println(route.getDistance());
 
         d1.addRoute(d2);
-        System.out.println(d1.getCostTo(d2));
-        System.out.println(d1.getCostTo(d3));
+        System.out.println(d1.getDistTo(d2));
+        System.out.println(d1.getDistTo(d3));
     }
 }

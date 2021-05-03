@@ -254,15 +254,12 @@ public class InstanceReader {
         int idMachine = Integer.parseInt(values[4]);
         int nbMachine = Integer.parseInt(values[5]);
         Point p = points.get(idClient);
-        Demande demand = new Demande(idDemand,p.getX(),p.getY(), firstDay, lastDay, idMachine, nbMachine);
 
         Client c = clients.get(idClient);
-        if(c != null) {
-            c.addDemande(demand);
-            return null;
-        }
-        c = new Client(p.getId(), p.getX(), p.getY());
-        c.addDemande(demand);
+        if (c == null)
+            c = new Client(p.getId(), p.getX(), p.getY());
+
+        c.addDemande(new Demande(idDemand, firstDay, lastDay, idMachine, nbMachine, c));
         return c;
     }
 
