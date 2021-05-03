@@ -6,19 +6,24 @@ import instance.reseau.Point;
 
 import java.util.Objects;
 
-public class Demande extends Point {
+public class Demande {
+    private final int id;
     private final int idMachine;
     private final int nbMachines;
     private final int firstDay;
     private final int lastDay;
 
 
-    public Demande(int id, int x, int y,int firstDay, int lastDay, int idMachine,int nbMachines) {
-        super(id,x,y);
+    public Demande(int id,int firstDay, int lastDay, int idMachine,int nbMachines) {
+        this.id = id;
         this.idMachine = idMachine;
         this.nbMachines = nbMachines;
         this.firstDay = firstDay;
         this.lastDay = lastDay;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public int getIdMachine() {
