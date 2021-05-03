@@ -1,26 +1,28 @@
 package solution;
 
+import instance.model.Demande;
 import instance.model.Technicien;
 import instance.reseau.Client;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TourneeTechnicien extends Tournee {
-    private List<Technicien> technicians;
+    private Technicien technician;
 
     public TourneeTechnicien() {
         super();
-        this.technicians = new ArrayList<>();
     }
 
-    public TourneeTechnicien(int id, List<Client> clients, int cost, List<Technicien> technicians) {
-        super(id, clients, cost);
-        this.technicians = technicians;
+    public boolean addDemand(Demande demand){
+        return true;
     }
 
     @Override
     public int evalCost() {
         return 0;
+    }
+
+    public Technicien getTechnician() {
+        return technician;
     }
 }

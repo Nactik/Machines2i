@@ -2,6 +2,7 @@ package solution;
 
 import instance.Instance;
 import instance.model.Demande;
+import instance.model.Technicien;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -20,51 +21,75 @@ public class Solution {
     private HashMap<Integer, LinkedList<Tournee>> days;
 
     private Solution(){
-        instance = null;
-        truckDistance = 0;
-        numberOfTruckDays = 0;
-        numberOfTruckUsed = 0;
-        technicianDistance = 0;
-        numberOfTechnicianDays = 0;
-        numberOfTechnicianUsed = 0;
-        idleMachineCost = 0;
-        totalCost = 0;
-        days = new HashMap<Integer,LinkedList<Tournee>>();
+        this.instance = null;
+        this.truckDistance = 0;
+        this.numberOfTruckDays = 0;
+        this.numberOfTruckUsed = 0;
+        this.technicianDistance = 0;
+        this.numberOfTechnicianDays = 0;
+        this.numberOfTechnicianUsed = 0;
+        this.idleMachineCost = 0;
+        this.totalCost = 0;
+        this.days = new HashMap<>();
     }
+
     public Solution(Instance instance) {
-        super();
+        this();
         this.instance = instance;
-        days = new HashMap<Integer,LinkedList<Tournee>>();
     }
+
     public Solution(Solution solution){
         this.instance = solution.instance;
-        truckDistance = solution.truckDistance;
-        numberOfTruckDays = solution.numberOfTruckDays;
-        numberOfTruckUsed = solution.numberOfTruckUsed;
-        technicianDistance = solution.technicianDistance;
-        numberOfTechnicianDays = solution.numberOfTechnicianDays;
-        numberOfTechnicianUsed = solution.numberOfTechnicianUsed;
-        idleMachineCost = solution.idleMachineCost;
-        totalCost = solution.totalCost;
-        days = mapCopy(solution.days);
-    }
-    private HashMap<Integer,LinkedList<Tournee>> mapCopy(HashMap<Integer,LinkedList<Tournee>> toCopy){
-        HashMap<Integer,LinkedList<Tournee>> copy = new HashMap<Integer,LinkedList<Tournee>>();
-        for(Map.Entry<Integer,LinkedList<Tournee>> entry : toCopy.entrySet()){
-            copy.put(entry.getKey(),new LinkedList<Tournee>(entry.getValue()));
-        }
-        return copy;
+        this.truckDistance = solution.truckDistance;
+        this.numberOfTruckDays = solution.numberOfTruckDays;
+        this.numberOfTruckUsed = solution.numberOfTruckUsed;
+        this.technicianDistance = solution.technicianDistance;
+        this.numberOfTechnicianDays = solution.numberOfTechnicianDays;
+        this.numberOfTechnicianUsed = solution.numberOfTechnicianUsed;
+        this.idleMachineCost = solution.idleMachineCost;
+        this.totalCost = solution.totalCost;
+        this.days = new HashMap<>(solution.days);
     }
 
-    public void addClientNewTourneeCamion(Demande demande) {
+    /**
+     * Ajoute une demande à une nouvelle tournée de camion
+     * @param demand
+     */
+    public void ajoutDemandNewTournee(Demande demand) {
         TourneeCamion tourneeCamion = new TourneeCamion(this.instance);
-        tourneeCamion.ajouterDemandeClient(demande);
-        addTourneeToMap(tourneeCamion,demande.getFirstDay());
+        tourneeCamion.ajouteDemandeClient(demand);
+        this.addTourneeToMap(tourneeCamion, demand.getFirstDay());
     }
 
-    private void addTourneeToMap(Tournee tournee,int jour){
+    /**
+     * Ajoute une demande a une nouvelle tournée technicien
+     * @param demand la demande a ajouter
+     */
+    public boolean addDemandNewTourneeTech(Demande demand){
+        if(demand == null) return false;
+
+        Technicien tech = null;
+
+//        for(HashMap.Entry<Integer, Technicien> entry : instance.getTechnicians().entrySet()){
+//
+//        }
+
+        TourneeTechnicien tourneeTech = new TourneeTechnicien();
+        if(tourneeTech.addDemand(demand)){
+            this.addTourneeToMap(tourneeTech, demand.getFirstDay();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Ajoute une tournée a la solution, en fonction du jour d'éxectution de celle-ci
+     * @param tournee la tournée à ajouter
+     * @param jour le jour de la tournée
+     */
+    private void addTourneeToMap(Tournee tournee, int jour){
         if (!days.containsKey(jour)){
-            days.put(jour,new LinkedList<Tournee>());
+            days.put(jour, new LinkedList<>());
         }
         days.get(jour).add(tournee);
     }

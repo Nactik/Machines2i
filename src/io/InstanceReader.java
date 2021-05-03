@@ -344,7 +344,7 @@ public class InstanceReader {
         Map<Integer,Boolean> canInstall = new LinkedHashMap<>();
 
         for (int i = 4; i < values.length; i++) {
-            canInstall.put(i-3, Integer.parseInt(values[i]) != 0 ? true : false);
+            canInstall.put(i-3, Integer.parseInt(values[i]) != 0);
         }
 
         Technicien technicien = new Technicien(idTechnicien, localisation, distanceMax, demandeMax, canInstall);

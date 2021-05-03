@@ -2,8 +2,9 @@ package instance.model;
 
 import instance.reseau.Point;
 
-import java.util.Map;
-import java.util.Objects;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Technicien {
     private int id;
@@ -11,14 +12,18 @@ public class Technicien {
     private int distance;
     private final int maxDistance;
     private final int maxDemand;
-    private Map<Integer,Boolean> canInstallMachine;
+    private List<Integer> machines;
 
-    public Technicien(int id, Point localisation, int distanceMax, int maxDemand,Map<Integer,Boolean> canInstallMachine) {
+    public Technicien(int id, Point localisation, int distanceMax, int maxDemand, Map<Integer,Boolean> canInstallMachine) {
         this.id = id;
         this.maxDistance = distanceMax;
         this.maxDemand = maxDemand;
         this.localisation = localisation;
-        this.canInstallMachine = canInstallMachine;
+        this.machines = new ArrayList<>();
+        for(Map.Entry<Integer, Boolean> entry :canInstallMachine.entrySet()){
+            if(entry.getValue())
+                this.machines.add(entry.getKey());
+        }
     }
 
     public int getId() {
@@ -46,7 +51,7 @@ public class Technicien {
                 ", distance: " + distance +
                 ", maxDistance: " + maxDistance +
                 ", maxDemand: " + maxDemand +
-                ", canInstallMachine: " + canInstallMachine +
+                ", machines: " + machines +
                 '}';
     }
 

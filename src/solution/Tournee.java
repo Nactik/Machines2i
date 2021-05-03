@@ -14,6 +14,7 @@ public abstract class Tournee {
 
     public Tournee() {
         this.clients = new ArrayList<>();
+        this.demandes = new ArrayList<>();
     }
 
     public Tournee(int id, List<Client> clients, int cost) {

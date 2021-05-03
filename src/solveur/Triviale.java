@@ -6,7 +6,6 @@ import instance.reseau.Client;
 import io.InstanceReader;
 import io.exception.ReaderException;
 import solution.Solution;
-import solution.Tournee;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -27,10 +26,8 @@ public class Triviale implements Solveur{
         for(Map.Entry<Integer,Client> entry : instance.getClients().entrySet()){
             for (Demande demande : entry.getValue().getDemandes()){
                 listeDemande.add(demande);
+                solution.ajoutDemandNewTournee(demande);
             }
-        }
-        for(Demande demande : listeDemande){
-            solution.addClientNewTourneeCamion(demande);
         }
         return solution;
     }
@@ -42,6 +39,7 @@ public class Triviale implements Solveur{
             Instance instance =  reader.readInstance();
             Triviale triviale = new Triviale();
             System.out.println(triviale.getNom());
+
             Solution solution = triviale.solve(instance);
             System.out.println(instance.getClients().size());
             System.out.println(solution.toString());

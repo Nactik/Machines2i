@@ -4,7 +4,6 @@ import instance.Instance;
 import instance.model.Camion;
 import instance.model.Demande;
 import instance.model.Machine;
-import instance.reseau.Client;
 import instance.reseau.Entrepot;
 import instance.reseau.Point;
 
@@ -23,7 +22,6 @@ public class TourneeCamion extends Tournee{
 
     public TourneeCamion() {
         super();
-        this.demandes = new ArrayList<>();
     }
 
     public TourneeCamion(Instance instance){
@@ -35,79 +33,122 @@ public class TourneeCamion extends Tournee{
         entrepot = instance.getEntrepot();
         maxCapacity = instance.getTruckCapacity();
         maxDistance = instance.getDistMaxTruck();
+    }
 
-    }
-    public TourneeCamion(int id, List<Client> clients, int cost, List<Demande> demandes) {
-        super(id, clients, cost);
-        this.demandes = demandes;
-    }
-    public boolean possAjout(Demande demande){
-        if(this.capacity + (getMachineSizeById(demande.getIdMachine())*demande.getNbMachines()) > this.maxCapacity){
+    /**
+     * Ajoute une demande à la tournée
+     * @param demand la demande à ajouter à la tournée
+     * @return true si OK, false sinon
+     */
+    public boolean ajouteDemandeClient(Demande demand){
+        if(demand == null){
             return false;
         }
-        // TO DO :
-        // Ajouter la vérification de distance
+        if(!this.possAjout(demand)) {
+            return false;
+        }
+        this.ajouterCoutTotal(demand);
+        this.capacity += this.getMachineSizeById(demand.getIdMachine())*demand.getNbMachines();
+        this.demandes.add(demand);
         return true;
     }
-    public boolean ajouterDemandeClient(Demande demande){
-        if(demande == null){
-            return false;
-        }
-        if(!possAjout(demande)) {
-            return false;
-        }
-        ajouterCoutTotal(demande);
-        capacity += getMachineSizeById(demande.getIdMachine())*demande.getNbMachines();
-        demandes.add(demande);
-        System.out.println("yoyoy "+this.demandes);
-        return true;
 
+    /**
+     * Calcul le cout de l'insertion de la demande à une position donnée
+     * @param position à laquelle insérée la demande
+     * @param demand la demande à insérer
+     * @return le cout
+     */
+    private int deltaCoutInsertion(int position, Demande demand) {
+        if (!isPositionInsertionValide(position) || demand == null){
+            return Integer.MAX_VALUE;
+        }
+
+        Point prec = this.getPrec(position);
+        Point current = this.getCurrent(position);
+
+        //si les routes existent pas
+        if(prec.getCostTo(demand) == Integer.MAX_VALUE || demand.getCostTo(current) == Integer.MAX_VALUE)
+            return Integer.MAX_VALUE;
+
+        //si prec == current -> il n'y a que le depot
+        if(prec.equals(current))
+            return prec.getCostTo(demand) + demand.getCostTo(prec);
+
+        //sinon on ajoute la route entre le prec et la demande, la demande et le futur suivant (current) et on suppr le prec vers le current
+        return prec.getCostTo(demand) + demand.getCostTo(current) - prec.getCostTo(current);
     }
 
     private boolean ajouterCoutTotal(Demande demande) {
-        int distTemp = deltaDistInsertion(this.demandes.size(), demande);
+        int distTemp = deltaCoutInsertion(this.demandes.size(), demande);
         if(distTemp == Integer.MAX_VALUE)
             return false;
         distance += distTemp;
         return true;
     }
 
-    private int deltaDistInsertion(int position, Demande demande) {
-        int distInsertion = 0;
-        if (!isPositionInsertionValide(position) || demande == null){
-            return Integer.MAX_VALUE;
-        }
-        if (!demandes.isEmpty()){
-            distInsertion-=getPrec(position).getCostTo(getCurrent(position));
-        }
-        distInsertion+=getPrec(position).getCostTo(getCurrent(position));
-        distInsertion+=demande.getCostTo(getCurrent(position));
-        return distInsertion;
-    }
+    /**
+     * Récupère la taille de la machine grace a son type (son id)
+     * @param id ou type de la machine
+     * @return la taille de la machine
+     */
     private int getMachineSizeById(int id){
         return listeMachine.get(id-1).getSize();
     }
-    private Point getCurrent(int position) {
-        if(position == demandes.size()){
-            return entrepot;
-        }
-        return demandes.get(position);
-    }
 
+    /**
+     * Donne la localisation de la demande à la position avant de celle donnée.
+     * Si la position est égale à 0, on renvoie l'entrepot
+     * @param position position à laquelle récupéré la localisation de la demande précédente
+     * @return la précédente localisation de la demande ou l'entrepot
+     */
     private Point getPrec(int position) {
-        if (position == 0){
+        if (position == 0 || this.demandes.size() == 0){
             return entrepot;
         }
         return demandes.get(position-1);
     }
 
+    /**
+     * Donne la localisation de la demande à la position donnée.
+     * Si la position est égale à la taille de la liste des demandes,
+     * on renvoie l'entrepot
+     * @param position position à laquelle récupéré la localisation de la demande
+     * @return la localisation de la demande ou l'entrepot
+     */
+    private Point getCurrent(int position) {
+        if(position == this.demandes.size()){
+            return this.entrepot;
+        }
+        return demandes.get(position);
+    }
+
+
+    /**
+     * Vérifie si la position à laquelle insérée la demande est correcte
+     * @param position à laquelle inserer la demande
+     * @return true si ok, false sinon
+     */
     private boolean isPositionInsertionValide(int position) {
         if (position<0)
             return false;
         if (position>demandes.size())
             return false;
-        if (capacity == maxCapacity)
+        if (capacity >= maxCapacity)
             return false;
+        return true;
+    }
+
+    /**
+     * Vérifie si l'ajout est possible dans la tournée en cours
+     * @param demand la demande à ajouter à la tournée
+     * @return
+     */
+    public boolean possAjout(Demande demand){
+        if(this.capacity + (getMachineSizeById(demand.getIdMachine())*demand.getNbMachines()) > this.maxCapacity){
+            return false;
+        }
+        // TO DO : Ajouter la vérification de distance
         return true;
     }
 
