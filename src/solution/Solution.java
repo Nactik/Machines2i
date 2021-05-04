@@ -55,10 +55,14 @@ public class Solution {
      * Ajoute une demande à une nouvelle tournée de camion
      * @param demand la demande à traiter
      */
-    public void addDemandNewTourneeTruck(Demande demand) {
+    public boolean addDemandNewTourneeTruck(Demande demand) {
         TourneeCamion tourneeCamion = new TourneeCamion(this.instance, demand.getFirstDay()); // TODO: changer, fonctionne pour une nouvelle tournée uniquement
-        tourneeCamion.addDemand(demand);
+        if(!tourneeCamion.addDemand(demand) || !tourneeCamion.check())
+            return false;
+
+        System.out.println("Tournée Camion OK");
         this.addTourneeToMap(tourneeCamion, demand.getFirstDay());
+        return true;
     }
 
     /**
@@ -74,17 +78,21 @@ public class Solution {
 
         for(Technicien t : this.instance.getTechnicians().values()){
             if(t.getMachines().contains(demand.getIdMachine())
-                && t.isAvailable(demand, installationDay))
+                && t.isAvailable(demand, installationDay)){
                 tech = t;
+                break;
+            }
         }
 
         if(tech == null) return false;
 
         TourneeTechnicien tourneeTech = new TourneeTechnicien(this.instance, tech, deliveryDay);
-        if(tourneeTech.addDemand(demand)){
-            this.addTourneeToMap(tourneeTech, deliveryDay);
-            return true;
-        }
+
+        if(!tourneeTech.addDemand(demand) || !tourneeTech.getTechnician().check())
+            return false;
+
+        System.out.println("Tournée Tech OK");
+        this.addTourneeToMap(tourneeTech, deliveryDay);
         return true;
     }
 
@@ -103,20 +111,20 @@ public class Solution {
     @Override
     public String toString() {
         String string= "Solution{" +
-                "instance=" + instance +
-                ", truckDistance=" + truckDistance +
-                ", numberOfTruckDays=" + numberOfTruckDays +
-                ", numberOfTruckUsed=" + numberOfTruckUsed +
-                ", technicianDistance=" + technicianDistance +
-                ", numberOfTechnicianDays=" + numberOfTechnicianDays +
-                ", numberOfTechnicianUsed=" + numberOfTechnicianUsed +
-                ", idleMachineCost=" + idleMachineCost +
-                ", totalCost=" + totalCost +
-                "\n\t days :";
-                for(Map.Entry<Integer,LinkedList<Tournee>> entry : days.entrySet()){
-                    string += "\n\t\t day : "+entry.getKey()+" = "+entry.getValue().toString();
-                }
-                string+='}';
+                "\ninstance: " + instance +
+                ",\n\ttruckDistance: " + truckDistance +
+                ",\n\tnumberOfTruckDays: " + numberOfTruckDays +
+                ",\n\tnumberOfTruckUsed: " + numberOfTruckUsed +
+                ",\n\ttechnicianDistance: " + technicianDistance +
+                ",\n\tnumberOfTechnicianDays: " + numberOfTechnicianDays +
+                ",\n\tnumberOfTechnicianUsed: " + numberOfTechnicianUsed +
+                ",\n\tidleMachineCost: " + idleMachineCost +
+                ",\n\ttotalCost: " + totalCost +
+                "\n\tdays: ";
+        for(Map.Entry<Integer,LinkedList<Tournee>> entry : days.entrySet()){
+            string += "\n\t\t day : "+entry.getKey()+" = "+entry.getValue().toString();
+        }
+        string+='}';
         return string;
     }
 }

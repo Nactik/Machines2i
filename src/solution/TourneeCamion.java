@@ -157,9 +157,13 @@ public class TourneeCamion extends Tournee{
         return true;
     }
 
+    /**
+     * Check gloable de la tournée
+     * @return true si la tournée est correcte, false sinon
+     */
     public boolean check() {
         int checkCapacity = checkCapacity();
-        int checkDist = checkDist();
+        int checkDist = checkDist(this.entrepot);
 
         return checkCapacity == this.capacity && checkCapacity <= this.maxCapacity
                 && checkDist == this.distance && checkDist <= this.maxDistance;
@@ -177,24 +181,6 @@ public class TourneeCamion extends Tournee{
         }
 
         return checkCapacity;
-    }
-
-    /**
-     * Vérifie si la distance à correctement été calculée
-     * @return la dist de la tournée
-     */
-    private int checkDist() {
-        if(this.demandes.isEmpty()) return 0;
-
-        int checkDist = 0;
-
-        checkDist += this.entrepot.getDistTo(this.demandes.get(0).getClient());
-        for(int i=0; i<this.demandes.size()-1; i++){
-            checkDist += this.demandes.get(i).getClient().getDistTo(this.demandes.get(i+1).getClient());
-        }
-        checkDist += this.demandes.get(this.demandes.size()-1).getClient().getDistTo(this.entrepot);
-
-        return checkDist;
     }
 
     @Override

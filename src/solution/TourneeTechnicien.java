@@ -18,6 +18,11 @@ public class TourneeTechnicien extends Tournee {
         technician.addNewTournee(day,this);
     }
 
+    /**
+     * Ajoute une demande au technicien
+     * @param demand la demande a traiter
+     * @return true si ok, false sinon
+     */
     @Override
     public boolean addDemand(Demande demand){
         int deliveryDay = demand.getFirstDay();
@@ -27,7 +32,8 @@ public class TourneeTechnicien extends Tournee {
             return false;
 
         // TODO: changer, fonctionne pour une nouvelle tournée uniquement
-        this.distance = this.entrepot.getDistTo(demand.getClient());
+        this.distance = this.technician.getDomicile().getDistTo(demand.getClient())
+                + demand.getClient().getDistTo(this.technician.getDomicile());
         this.demandes.add(demand);
 
         return true;

@@ -40,7 +40,6 @@ public class Triviale implements Solveur{
             System.out.println(triviale.getNom());
 
             Solution solution = triviale.solve(instance);
-            System.out.println(instance.getClients().size());
             System.out.println(solution.toString());
         } catch (ReaderException ex) {
             Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);
