@@ -108,6 +108,66 @@ public class Solution {
         days.get(jour).add(tournee);
     }
 
+    /**
+     * Calcul la distance des camions totale dans la solution
+     * @return la distance
+     */
+    private int evalTruckDistance(){
+        int truckDistance = 0;
+
+        for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
+            LinkedList<Tournee> tournees = entry.getValue();
+
+            for(Tournee t : tournees){
+                if(t instanceof TourneeCamion)
+                    truckDistance += t.getDistance();
+            }
+        }
+        return truckDistance;
+    }
+
+    /**
+     * Calcul la distance des techniciens totale dans la solution
+     * @return la distance
+     */
+    private int evalTechnicianDistance(){
+        int technicianDistance = 0;
+
+        for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
+            LinkedList<Tournee> tournees = entry.getValue();
+
+            for(Tournee t : tournees){
+                if(t instanceof TourneeTechnicien)
+                    technicianDistance += t.getDistance();
+            }
+        }
+        return technicianDistance;
+    }
+
+    /**
+     * Check globale de la solution
+     * @return true si tout est ok, false sinon
+     */
+    public boolean check(){
+        // vérifier les distances camion OK
+        // vérifier les distances techniciens OK
+        // vérifier les jours camion
+        // vérifier les jours tech
+        // vérifier le nb de camions utilisés
+        // vérifier le nb de tech utilisés
+        // vérifier le idle machine
+
+        return checkDistance();
+    }
+
+    /**
+     * Vérifie les distances calculées dans la solution
+     * @return true si les distances sont ok, false sinon
+     */
+    private boolean checkDistance(){
+        return evalTruckDistance() == this.truckDistance && evalTechnicianDistance() == this.technicianDistance;
+    }
+
     @Override
     public String toString() {
         String string= "Solution{" +

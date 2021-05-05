@@ -49,8 +49,8 @@ public abstract class Tournee {
         return demandes;
     }
 
-    public Entrepot getEntrepot() {
-        return entrepot;
+    public int getDistance() {
+        return distance;
     }
 
     public abstract int evalCost();
