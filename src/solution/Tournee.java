@@ -46,6 +46,52 @@ public abstract class Tournee {
         return checkDist;
     }
 
+
+    /**
+     * Vérifie si la position à laquelle insérée la demande est correcte
+     * @param position à laquelle inserer la demande
+     * @return true si ok, false sinon
+     */
+    protected boolean isPositionInsertionValide(int position) {
+        if (position<0)
+            return false;
+        if (position>demandes.size())
+            return false;
+        return true;
+    }
+
+    /**
+     * Calcul le cout de l'insertion de la demande à une position donnée
+     * @param position à laquelle insérée la demande
+     * @param demand la demande à insérer
+     * @return le cout
+     */
+    protected int deltaDistInsertion(int position, Demande demand) {
+        if (!isPositionInsertionValide(position) || demand == null){
+            return Integer.MAX_VALUE;
+        }
+
+        Client c = demand.getClient();
+        Point prec = this.getPrec(position);
+        Point current = this.getCurrent(position);
+
+        //si les routes existent pas
+        if(prec.getDistTo(c) == Integer.MAX_VALUE || c.getDistTo(current) == Integer.MAX_VALUE)
+            return Integer.MAX_VALUE;
+
+        //si prec == current -> il n'y a que le depot
+        if(prec.equals(current))
+            return prec.getDistTo(c) + c.getDistTo(current);
+
+        //sinon on ajoute la route entre le prec et la demande, la demande et le futur suivant (current) et on suppr le prec vers le current
+        return prec.getDistTo(c) + c.getDistTo(current) - prec.getDistTo(current);
+    }
+
+
+    protected abstract Point getPrec(int position);
+
+    protected abstract Point getCurrent(int position);
+
     public List<Demande> getDemandes() {
         return demandes;
     }

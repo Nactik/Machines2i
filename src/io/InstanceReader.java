@@ -335,7 +335,7 @@ public class InstanceReader {
             throws NumberFormatException {
         String[] values = ligne.split(" ");
         int idTechnicien = Integer.parseInt(values[0]);
-        Point localisation = points.get(Integer.parseInt(values[1]));
+        Point domicile = points.get(Integer.parseInt(values[1]));
         int distanceMax = Integer.parseInt(values[2]);
         int demandeMax = Integer.parseInt(values[3]);
         Map<Integer,Boolean> canInstall = new LinkedHashMap<>();
@@ -344,7 +344,7 @@ public class InstanceReader {
             canInstall.put(i-3, Integer.parseInt(values[i]) != 0);
         }
 
-        Technicien technicien = new Technicien(idTechnicien, localisation, distanceMax, demandeMax, canInstall);
+        Technicien technicien = new Technicien(idTechnicien, domicile, distanceMax, demandeMax, canInstall);
 
         return technicien;
     }

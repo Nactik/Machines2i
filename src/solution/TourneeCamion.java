@@ -13,7 +13,6 @@ import java.util.List;
 
 public class TourneeCamion extends Tournee{
 
-    private int truckId;
     private int capacity;
     private int maxDistance;
     private int maxCapacity;
@@ -60,46 +59,19 @@ public class TourneeCamion extends Tournee{
      * @return true si ok, false sinon
      */
     private boolean majDistTotal(Demande demand) {
-        int distTemp = deltaDistInsertion(this.demandes.size(), demand);
+        int distTemp = this.deltaDistInsertion(this.demandes.size(), demand);
         if(distTemp == Integer.MAX_VALUE)
             return false;
         this.distance += distTemp;
         return true;
     }
-
-    /**
-     * Calcul le cout de l'insertion de la demande à une position donnée
-     * @param position à laquelle insérée la demande
-     * @param demand la demande à insérer
-     * @return le cout
-     */
-    private int deltaDistInsertion(int position, Demande demand) {
-        if (!isPositionInsertionValide(position) || demand == null){
-            return Integer.MAX_VALUE;
-        }
-
-        Client c = demand.getClient();
-        Point prec = this.getPrec(position);
-        Point current = this.getCurrent(position);
-
-        //si les routes existent pas
-        if(prec.getDistTo(c) == Integer.MAX_VALUE || c.getDistTo(current) == Integer.MAX_VALUE)
-            return Integer.MAX_VALUE;
-
-        //si prec == current -> il n'y a que le depot
-        if(prec.equals(current))
-            return prec.getDistTo(c) + c.getDistTo(current);
-
-        //sinon on ajoute la route entre le prec et la demande, la demande et le futur suivant (current) et on suppr le prec vers le current
-        return prec.getDistTo(c) + c.getDistTo(current) - prec.getDistTo(current);
-    }
-
     /**
      * Récupère la taille de la machine grace a son type (son id)
      * @param id ou type de la machine
      * @return la taille de la machine
      */
     private int getMachineSizeById(int id){
+        //marche seulement si la liste est dans le meme ordre
         return listeMachine.get(id-1).getSize();
     }
 
@@ -109,7 +81,8 @@ public class TourneeCamion extends Tournee{
      * @param position position à laquelle récupéré la localisation de la demande précédente
      * @return la précédente localisation de la demande ou l'entrepot
      */
-    private Point getPrec(int position) {
+    @Override
+    protected Point getPrec(int position) {
         if (position == 0 || this.demandes.size() == 0){
             return entrepot;
         }
@@ -123,26 +96,12 @@ public class TourneeCamion extends Tournee{
      * @param position position à laquelle récupéré la localisation de la demande
      * @return la localisation de la demande ou l'entrepot
      */
-    private Point getCurrent(int position) {
+    @Override
+    protected Point getCurrent(int position) {
         if(position == this.demandes.size()){
             return this.entrepot;
         }
         return demandes.get(position).getClient();
-    }
-
-    /**
-     * Vérifie si la position à laquelle insérée la demande est correcte
-     * @param position à laquelle inserer la demande
-     * @return true si ok, false sinon
-     */
-    private boolean isPositionInsertionValide(int position) {
-        if (position<0)
-            return false;
-        if (position>demandes.size())
-            return false;
-        if (capacity >= maxCapacity)
-            return false;
-        return true;
     }
 
     /**

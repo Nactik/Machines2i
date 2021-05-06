@@ -7,6 +7,7 @@ import instance.model.Technicien;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.stream.Collector;
 
 public class Solution {
     private Instance instance;
@@ -61,6 +62,8 @@ public class Solution {
             return false;
 
         System.out.println("Tournée Camion OK");
+        demand.setDeliveryDay(demand.getFirstDay());
+
         this.addTourneeToMap(tourneeCamion, demand.getFirstDay());
         return true;
     }
@@ -73,7 +76,7 @@ public class Solution {
         if(demand == null) return false;
 
         int deliveryDay = demand.getFirstDay();
-        int installationDay = deliveryDay + 1;
+        int installationDay = deliveryDay++;
         Technicien tech = null;
 
         for(Technicien t : this.instance.getTechnicians().values()){
@@ -92,6 +95,8 @@ public class Solution {
             return false;
 
         System.out.println("Tournée Tech OK");
+        demand.setInstallationDay(installationDay);
+        this.idleMachineCost += this.evalIdleCost(demand);
         this.addTourneeToMap(tourneeTech, deliveryDay);
         return true;
     }
@@ -109,10 +114,20 @@ public class Solution {
     }
 
     /**
+     * Calcul le temps d'inactivité des machines d'une demande
+     * @param demand la demande
+     * @return le cout du temps d'inactivité
+     */
+    private int evalIdleCost(Demande demand){
+        int idleDay = demand.getInstallationDay() - demand.getDeliveryDay() -1; //-1 car on veut les jours inactifs
+        return idleDay*demand.getNbMachines()*this.instance.getMachines().get(demand.getIdMachine()-1).getPenality(); //marche seulement si la liste est dans le meme ordre
+    }
+
+    /**
      * Calcul la distance des camions totale dans la solution
      * @return la distance
      */
-    private int evalTruckDistance(){
+    private int checkTruckDistance(){
         int truckDistance = 0;
 
         for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
@@ -130,7 +145,7 @@ public class Solution {
      * Calcul la distance des techniciens totale dans la solution
      * @return la distance
      */
-    private int evalTechnicianDistance(){
+    private int checkTechnicianDistance(){
         int technicianDistance = 0;
 
         for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
@@ -142,6 +157,14 @@ public class Solution {
             }
         }
         return technicianDistance;
+    }
+
+    /**
+     * Calcule le cout complet de la solution
+     * @return Rien pour l'instant
+     */
+    public void evalCost(){
+
     }
 
     /**
@@ -165,27 +188,7 @@ public class Solution {
      * @return true si les distances sont ok, false sinon
      */
     private boolean checkDistance(){
-        return evalTruckDistance() == this.truckDistance && evalTechnicianDistance() == this.technicianDistance;
-    }
-
-    @Override
-    public String toString() {
-        String string= "Solution{" +
-                "\ninstance: " + instance +
-                ",\n\ttruckDistance: " + truckDistance +
-                ",\n\tnumberOfTruckDays: " + numberOfTruckDays +
-                ",\n\tnumberOfTruckUsed: " + numberOfTruckUsed +
-                ",\n\ttechnicianDistance: " + technicianDistance +
-                ",\n\tnumberOfTechnicianDays: " + numberOfTechnicianDays +
-                ",\n\tnumberOfTechnicianUsed: " + numberOfTechnicianUsed +
-                ",\n\tidleMachineCost: " + idleMachineCost +
-                ",\n\ttotalCost: " + totalCost +
-                "\n\tdays: ";
-        for(Map.Entry<Integer,LinkedList<Tournee>> entry : days.entrySet()){
-            string += "\n\t\t day : "+entry.getKey()+" = "+entry.getValue().toString();
-        }
-        string+='}';
-        return string;
+        return checkTruckDistance() == this.truckDistance && checkTechnicianDistance() == this.technicianDistance;
     }
 
     public Instance getInstance() {
@@ -226,5 +229,25 @@ public class Solution {
 
     public HashMap<Integer, LinkedList<Tournee>> getDays() {
         return days;
+    }
+
+    @Override
+    public String toString() {
+        String string = "Solution{" +
+                "\ninstance: " + instance +
+                ",\n\ttruckDistance: " + truckDistance +
+                ",\n\tnumberOfTruckDays: " + numberOfTruckDays +
+                ",\n\tnumberOfTruckUsed: " + numberOfTruckUsed +
+                ",\n\ttechnicianDistance: " + technicianDistance +
+                ",\n\tnumberOfTechnicianDays: " + numberOfTechnicianDays +
+                ",\n\tnumberOfTechnicianUsed: " + numberOfTechnicianUsed +
+                ",\n\tidleMachineCost: " + idleMachineCost +
+                ",\n\ttotalCost: " + totalCost +
+                "\n\tdays: ";
+        for (Map.Entry<Integer, LinkedList<Tournee>> entry : days.entrySet()) {
+            string += "\n\t\t day : " + entry.getKey() + " = " + entry.getValue().toString();
+        }
+        string += '}';
+        return string;
     }
 }

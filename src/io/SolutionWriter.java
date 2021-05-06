@@ -57,8 +57,9 @@ public class SolutionWriter {
             }
             pw.println("NUMBER_OF_TRUCKS = " + tourneeTruck.size());
             if(tourneeTruck.size() > 0){
+                int truckId = 1;
                 for(TourneeCamion t : tourneeTruck){
-                    pw.println(t.getCamion().getId() + getDemandeSequence(t));
+                    pw.println((truckId++) + getDemandeSequence(t));
                 }
             }
 

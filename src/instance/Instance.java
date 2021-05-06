@@ -97,6 +97,22 @@ public class Instance {
         return truckCost;
     }
 
+    public int getNbDay() {
+        return nbDay;
+    }
+
+    public int getTechDayCost() {
+        return techDayCost;
+    }
+
+    public int getTechDistCost() {
+        return techDistCost;
+    }
+
+    public int getTechCost() {
+        return techCost;
+    }
+
     public List<Machine> getMachines() {
         return machines;
     }

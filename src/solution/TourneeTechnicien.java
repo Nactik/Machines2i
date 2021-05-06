@@ -3,6 +3,7 @@ package solution;
 import instance.Instance;
 import instance.model.Demande;
 import instance.model.Technicien;
+import instance.reseau.Point;
 
 public class TourneeTechnicien extends Tournee {
 
@@ -32,11 +33,22 @@ public class TourneeTechnicien extends Tournee {
             return false;
 
         // TODO: changer, fonctionne pour une nouvelle tournée uniquement
+        // TODO: utilsier l'eval distance de tournée et implémenter les getprec et getcurrent
         this.distance = this.technician.getDomicile().getDistTo(demand.getClient())
                 + demand.getClient().getDistTo(this.technician.getDomicile());
         this.demandes.add(demand);
 
         return true;
+    }
+
+    @Override
+    protected Point getPrec(int position) {
+        return null;
+    }
+
+    @Override
+    protected Point getCurrent(int position) {
+        return null;
     }
 
     public int getDistance(){

@@ -13,14 +13,18 @@ public class Demande {
     private final int firstDay;
     private final int lastDay;
     private final Client client;
+    private int deliveryDay;
+    private int installationDay;
 
-    public Demande(int id,int firstDay, int lastDay, int idMachine, int nbMachines, Client client) {
+    public Demande(int id, int firstDay, int lastDay, int idMachine, int nbMachines, Client client) {
         this.id = id;
         this.idMachine = idMachine;
         this.nbMachines = nbMachines;
         this.firstDay = firstDay;
         this.lastDay = lastDay;
         this.client = client;
+        this.deliveryDay = -1;
+        this.installationDay = -1;
     }
 
     public int getId() {
@@ -45,6 +49,18 @@ public class Demande {
 
     public Client getClient() {
         return client;
+    }
+
+    public int getDeliveryDay() { return deliveryDay; }
+
+    public int getInstallationDay() { return installationDay; }
+
+    public void setDeliveryDay(int deliveryDay) {
+        this.deliveryDay = deliveryDay;
+    }
+
+    public void setInstallationDay(int installationDay) {
+        this.installationDay = installationDay;
     }
 
     @Override
