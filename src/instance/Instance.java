@@ -69,6 +69,14 @@ public class Instance {
         return clients;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getDataset() {
+        return dataset;
+    }
+
     public int getTruckCapacity() {
         return truckCapacity;
     }
@@ -101,7 +109,7 @@ public class Instance {
     public String toString() {
         return "Instance {" +
                 "\n\tdataSet: " + dataset +
-                "\n\tname: " + name +
+                ",\n\tname: " + name +
                 ",\n\tnbDay: " + nbDay +
                 ",\n\ttruckCapacity: " + truckCapacity +
                 ",\n\tdistMaxTruck: " + distMaxTruck +

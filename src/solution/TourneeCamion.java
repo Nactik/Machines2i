@@ -8,10 +8,12 @@ import instance.reseau.Entrepot;
 import instance.reseau.Point;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class TourneeCamion extends Tournee{
 
+    private int truckId;
     private int capacity;
     private int maxDistance;
     private int maxCapacity;
@@ -19,11 +21,11 @@ public class TourneeCamion extends Tournee{
 
     public TourneeCamion() {
         super();
+        this.listeMachine = new LinkedList<>();
     }
 
     public TourneeCamion(Instance instance, int day){
         super(instance.getEntrepot(), day);
-        this.demandes = new ArrayList<>();
         distance = 0;
         capacity = 0;
         listeMachine = instance.getMachines();

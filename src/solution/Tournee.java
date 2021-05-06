@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Tournee {
+
     protected List<Demande> demandes;
     protected Entrepot entrepot;
     protected int day;
