@@ -46,7 +46,6 @@ public abstract class Tournee {
         return checkDist;
     }
 
-
     /**
      * Vérifie si la position à laquelle insérée la demande est correcte
      * @param position à laquelle inserer la demande
@@ -87,7 +86,6 @@ public abstract class Tournee {
         return prec.getDistTo(c) + c.getDistTo(current) - prec.getDistTo(current);
     }
 
-
     protected abstract Point getPrec(int position);
 
     protected abstract Point getCurrent(int position);
@@ -103,4 +101,6 @@ public abstract class Tournee {
     public abstract int evalCost();
 
     public abstract boolean addDemand(Demande demand);
+
+    public abstract boolean check();
 }

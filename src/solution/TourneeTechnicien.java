@@ -41,6 +41,15 @@ public class TourneeTechnicien extends Tournee {
         return true;
     }
 
+    /**
+     * Appel le check du technicien de la tournée pour vérifier si tout est ok
+     * @return true si tout est ok, false sinon
+     */
+    @Override
+    public boolean check() {
+        return this.technician.check();
+    }
+
     @Override
     protected Point getPrec(int position) {
         return null;

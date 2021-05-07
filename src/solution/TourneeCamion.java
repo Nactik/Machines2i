@@ -65,6 +65,7 @@ public class TourneeCamion extends Tournee{
         this.distance += distTemp;
         return true;
     }
+
     /**
      * Récupère la taille de la machine grace a son type (son id)
      * @param id ou type de la machine
@@ -122,6 +123,7 @@ public class TourneeCamion extends Tournee{
      * Check gloable de la tournée
      * @return true si la tournée est correcte, false sinon
      */
+    @Override
     public boolean check() {
         int checkCapacity = checkCapacity();
         int checkDist = checkDist(this.entrepot);

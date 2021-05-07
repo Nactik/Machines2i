@@ -41,6 +41,8 @@ public class Triviale implements Solveur{
 
             Solution solution = triviale.solve(instance);
             System.out.println(solution.toString());
+            if(solution.check()) System.out.println("Solution OK");
+            else System.out.println("Solution NOK");
         } catch (ReaderException ex) {
             Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);
         }
