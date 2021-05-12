@@ -49,6 +49,7 @@ public class Technicien {
         if(demand == null || day < 0) return false;
         TourneeTechnicien t = this.tourneePerDay.get(day);
         //TODO : fonctionne que pour une insertion a la fin
+        //TODO : vérifier les jours de repos
         if(t != null)
             return this.canHandleDemand(t, demand);
         //TODO : moche et a changer, mais gère le cas ou on crée une nouvelle tournée, et que la distance est directement trop élevée...
