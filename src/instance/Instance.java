@@ -46,6 +46,11 @@ public class Instance {
         this.machines = machines;
     }
 
+    /**
+     * Ajoute un client à l'instance
+     * @param clientToAdd le client a traiter
+     * @return true si ok, false sinon
+     */
     public boolean addClient(Client clientToAdd){
         if(clientToAdd == null) return false;
         if(!clientToAdd.addRoute(this.entrepot)) return false;
@@ -60,6 +65,24 @@ public class Instance {
 
         return true;
     }
+
+    /**
+     * Ajoute un technicien à l'instance et crée les routes entre le domicile et les clients
+     * @param techToAdd le technicien à traiter
+     * @return true si ok, false sinon
+     */
+    public boolean addTechnician(Technicien techToAdd){
+        if(techToAdd == null) return false;
+
+        this.technicians.put(techToAdd.getId(), techToAdd);
+        for(Client c: this.clients.values()) {
+            if(!techToAdd.getDomicile().addRoute(c)) return false;
+            c.addRoute(techToAdd.getDomicile());
+        }
+
+        return true;
+    }
+
 
     public Map<Integer, Technicien> getTechnicians() {
         return technicians;

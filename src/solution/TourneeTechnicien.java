@@ -26,19 +26,16 @@ public class TourneeTechnicien extends Tournee {
      */
     @Override
     public boolean addDemand(Demande demand){
-        int deliveryDay = demand.getFirstDay();
-        int installationDay = deliveryDay + 1;
+        if(demand == null){
+            return false;
+        }
 
-        if(!this.technician.isAvailable(demand, installationDay))
+        if(!this.majDistTotal(demand)) //maj la distance
             return false;
 
-        // TODO: changer, fonctionne pour une nouvelle tournée uniquement
-        // TODO: utilsier l'eval distance de tournée et implémenter les getprec et getcurrent
-        this.distance = this.technician.getDomicile().getDistTo(demand.getClient())
-                + demand.getClient().getDistTo(this.technician.getDomicile());
         this.demandes.add(demand);
 
-        return true;
+        return this.check();
     }
 
     /**
@@ -50,14 +47,32 @@ public class TourneeTechnicien extends Tournee {
         return this.technician.check();
     }
 
+    /**
+     * Récupère le client précédent a une position donnée dans la liste
+     * Si la liste est vide ou que la position est 0, on renvoie le domicile du technician
+     * @param position la position
+     * @return le point correspondant à la position
+     */
     @Override
     protected Point getPrec(int position) {
-        return null;
+        if (position == 0 || this.demandes.size() == 0){
+            return this.technician.getDomicile();
+        }
+        return this.demandes.get(position-1).getClient();
     }
 
+    /**
+     * Récupère la position du client a une position du donnée dans la liste
+     * Retourne le domicile du technicien si on demande une position égale a la taille de la liste
+     * @param position la position
+     * @return le point correspondant au client
+     */
     @Override
     protected Point getCurrent(int position) {
-        return null;
+        if(position == this.demandes.size()){
+            return this.technician.getDomicile();
+        }
+        return demandes.get(position).getClient();
     }
 
     public int getDistance(){

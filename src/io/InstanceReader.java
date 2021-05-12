@@ -94,14 +94,16 @@ public class InstanceReader {
             Instance instance = new Instance(dataSet,nom, nbDays, truckCapacity, truckMaxDistance, truckDistanceCost, truckDayCost,
                     truckCost, techDayCost, techDistCost, techCost, entrepot, machines);
 
+            // on ajoute les clients
             for(Client c : clients) {
                 instance.addClient(c);
             }
 
-            Map<Integer, Technicien> technicansMap = instance.getTechnicians();
-            for(Technicien t : technicians) {
-                technicansMap.put(t.getId(), t);
+            // puis les techniciens
+            for(Technicien t: technicians){
+                instance.addTechnician(t);
             }
+
             br.close();
             f.close();
             return instance;

@@ -65,7 +65,7 @@ public abstract class Tournee {
      * @param demand la demande à insérer
      * @return le cout
      */
-    protected int deltaDistInsertion(int position, Demande demand) {
+    public int deltaDistInsertion(int position, Demande demand) {
         if (!isPositionInsertionValide(position) || demand == null){
             return Integer.MAX_VALUE;
         }
@@ -86,9 +86,19 @@ public abstract class Tournee {
         return prec.getDistTo(c) + c.getDistTo(current) - prec.getDistTo(current);
     }
 
-    protected abstract Point getPrec(int position);
-
-    protected abstract Point getCurrent(int position);
+    /**
+     * Maj le cout total de la tournée en fonction de la demnade passé en param
+     * @param demand la demand a traiter
+     * @return true si ok, false sinon
+     */
+    protected boolean majDistTotal(Demande demand) {
+        //TODO : fonctionne que pour une insertion a la fin
+        int distTemp = this.deltaDistInsertion(this.demandes.size(), demand);
+        if(distTemp == Integer.MAX_VALUE)
+            return false;
+        this.distance += distTemp;
+        return true;
+    }
 
     public List<Demande> getDemandes() {
         return demandes;
@@ -99,6 +109,10 @@ public abstract class Tournee {
     }
 
     public abstract int evalCost();
+
+    protected abstract Point getPrec(int position);
+
+    protected abstract Point getCurrent(int position);
 
     public abstract boolean addDemand(Demande demand);
 

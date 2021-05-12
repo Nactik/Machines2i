@@ -58,13 +58,14 @@ public class Solution {
      */
     public boolean addDemandNewTourneeTruck(Demande demand) {
         TourneeCamion tourneeCamion = new TourneeCamion(this.instance, demand.getFirstDay()); // TODO: changer, fonctionne pour une nouvelle tournée uniquement
-        if(!tourneeCamion.addDemand(demand) || !tourneeCamion.check())
+
+        if(!tourneeCamion.addDemand(demand))
             return false;
 
-        System.out.println("Tournée Camion OK");
         demand.setDeliveryDay(demand.getFirstDay());
-
+        this.truckDistance += tourneeCamion.getDistance();
         this.addTourneeToMap(tourneeCamion, demand.getFirstDay());
+
         return true;
     }
 
@@ -76,7 +77,7 @@ public class Solution {
         if(demand == null) return false;
 
         int deliveryDay = demand.getFirstDay();
-        int installationDay = deliveryDay++; //on installe le jour suivant
+        int installationDay = deliveryDay+1; //on installe le jour suivant
         Technicien tech = null;
 
         for(Technicien t : this.instance.getTechnicians().values()){
@@ -87,16 +88,21 @@ public class Solution {
             }
         }
 
-        if(tech == null) return false;
-
-        TourneeTechnicien tourneeTech = new TourneeTechnicien(this.instance, tech, deliveryDay);
-
-        if(!tourneeTech.addDemand(demand) || !tourneeTech.getTechnician().check())
+        if(tech == null)
             return false;
 
-        System.out.println("Tournée Tech OK");
+        TourneeTechnicien tourneeTech = tech.getTourneeOnDay(installationDay);
+        if(tourneeTech == null){
+            tourneeTech = new TourneeTechnicien(this.instance, tech, deliveryDay);
+        }
+
+
+        if(!tourneeTech.addDemand(demand))
+            return false;
+
         demand.setInstallationDay(installationDay);
         this.idleMachineCost += this.evalIdleCost(demand);
+        this.technicianDistance += tourneeTech.getDistance();
         this.addTourneeToMap(tourneeTech, deliveryDay);
         return true;
     }
@@ -141,8 +147,8 @@ public class Solution {
      */
     public boolean check(){
         // appeler tout les checks des tournées OK
-        // vérifier les distances camion
-        // vérifier les distances techniciens
+        // vérifier les distances camion OK
+        // vérifier les distances techniciens OK
         // vérifier les jours camion
         // vérifier les jours tech
         // vérifier le nb de camions utilisés
@@ -157,11 +163,10 @@ public class Solution {
                     return false;
             }
         }
-        // TODO: les deux if ne fonctionne pas encore car on ne maj pas encore les prop de solution
-//        if(this.checkTruckDistance() != this.truckDistance)
-//            return false;
-//        if(this.checkTechnicianDistance() != this.technicianDistance)
-//            return false;
+        if(this.checkTruckDistance() != this.truckDistance)
+           return false;
+       if(this.checkTechnicianDistance() != this.technicianDistance)
+            return false;
         if(this.checkIdleCost() != this.idleMachineCost)
             return false;
 

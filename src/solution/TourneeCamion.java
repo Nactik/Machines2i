@@ -3,11 +3,8 @@ package solution;
 import instance.Instance;
 import instance.model.Demande;
 import instance.model.Machine;
-import instance.reseau.Client;
-import instance.reseau.Entrepot;
 import instance.reseau.Point;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,20 +47,7 @@ public class TourneeCamion extends Tournee{
         this.capacity += this.getMachineSizeById(demand.getIdMachine())*demand.getNbMachines(); //maj la capacite
         this.demandes.add(demand); //maj les demandes
 
-        return true;
-    }
-
-    /**
-     * Maj le cout total de la tournée en fonction de la demnade passé en param
-     * @param demand la demand a traiter
-     * @return true si ok, false sinon
-     */
-    private boolean majDistTotal(Demande demand) {
-        int distTemp = this.deltaDistInsertion(this.demandes.size(), demand);
-        if(distTemp == Integer.MAX_VALUE)
-            return false;
-        this.distance += distTemp;
-        return true;
+        return this.check();
     }
 
     /**
@@ -87,7 +71,7 @@ public class TourneeCamion extends Tournee{
         if (position == 0 || this.demandes.size() == 0){
             return entrepot;
         }
-        return demandes.get(position-1).getClient();
+        return this.demandes.get(position-1).getClient();
     }
 
     /**
@@ -109,7 +93,7 @@ public class TourneeCamion extends Tournee{
      * Vérifie si l'ajout est possible dans la tournée en cours
      * @param position la position à laquelle ajouter la demande
      * @param demand la demande à ajouter à la tournée
-     * @return
+     * @return true si ok, false sinon
      */
     public boolean isInsertionValide(int position, Demande demand){
         if(this.capacity + (getMachineSizeById(demand.getIdMachine())*demand.getNbMachines()) > this.maxCapacity)
