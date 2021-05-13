@@ -75,6 +75,17 @@ public class TourneeTechnicien extends Tournee {
         return demandes.get(position).getClient();
     }
 
+    @Override
+    public String toString() {
+        return "TourneeTechnicien{" +
+                "demandes=" + demandes +
+                ", entrepot=" + entrepot +
+                ", day=" + day +
+                ", distance=" + distance +
+                ", technician=" + technician +
+                '}';
+    }
+
     public int getDistance(){
         return distance;
     }

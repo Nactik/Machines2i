@@ -28,6 +28,11 @@ public class Triviale implements Solveur{
                 solution.addDemandNewTourneeTech(demande);
             }
         }
+        //TODO : Changer ces appels pour ne pas qu'ils soient en dur ici
+        solution.evalNbTruckUsed();
+        solution.evalNbTruckDays();
+        solution.evalNbTechDays();
+        solution.evalNbTechUsed();
         return solution;
     }
 

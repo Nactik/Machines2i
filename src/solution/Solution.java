@@ -53,7 +53,7 @@ public class Solution {
     }
 
     /**
-     * Ajoute une demande à une nouvelle tournée de camion
+     * Ajoute une demande à une nouvelle tournée de camion le premier jour de la dispo de la commande
      * @param demand la demande à traiter
      */
     public boolean addDemandNewTourneeTruck(Demande demand) {
@@ -65,7 +65,6 @@ public class Solution {
         demand.setDeliveryDay(demand.getFirstDay());
         this.truckDistance += tourneeCamion.getDistance();
         this.addTourneeToMap(tourneeCamion, demand.getFirstDay());
-
         return true;
     }
 
@@ -133,6 +132,82 @@ public class Solution {
         return idleDay*demand.getNbMachines()*this.instance.getMachines().get(demand.getIdMachine()-1).getPenality(); //marche seulement si la liste est dans le meme ordre
     }
 
+    /**
+     * calcul la variable NUMBER_OF_TRUCKS_USED,le nombre maximal de camion utilisés dans une
+     * journée.
+     * @return la valeure de NUMBER_OF_TRUCKS_USED
+     */
+    public int evalNbTruckUsed(){
+        int maxNbTruck = 0;
+        int nbTruck = 0;
+        for (LinkedList<Tournee> liste : this.days.values()) {
+            for (Tournee t : liste){ //On parcourt chaque tournée de chaque jour
+                if(t instanceof TourneeCamion){ //Si c'est une tournée camion, on incrémente le compteur
+                    nbTruck+=1;
+                }
+            }
+            if(nbTruck> maxNbTruck){ //Si le compteur est supérieur à la valeur max actuelle, on remplace
+                maxNbTruck=nbTruck;
+            }
+            nbTruck=0;
+        }
+        this.numberOfTruckUsed = maxNbTruck;
+        return maxNbTruck;
+    }
+
+    /**
+     * calcul la variable NUMBER_OF_TRUCK_DAYS, le nombre total de journées camion utilisées.
+     * @return la valeur de NUMBER_OF_TRUCK_DAYS
+     */
+    public int evalNbTruckDays(){
+        int nbTruckDays =0;
+        for (LinkedList<Tournee> liste : this.days.values()) {
+            for (Tournee t : liste){
+                if(t instanceof TourneeCamion){
+                    nbTruckDays+=1;
+                }
+            }
+        }
+        this.numberOfTruckDays=nbTruckDays;
+        return nbTruckDays;
+    }
+    /**
+     * calcul la variable NUMBER_OF_TRUCKS_USED,: le nombre total de techniciens utilisés.
+     * journée.
+     * @return la valeure de NUMBER_OF_TRUCKS_USED
+     */
+    public int evalNbTechUsed(){
+        LinkedList<Technicien> listeTech = new LinkedList<Technicien>();
+        for (LinkedList<Tournee> liste : this.days.values()) {
+            for (Tournee t : liste){ //On parcourt chaque tournée de chaque jour
+                if(t instanceof TourneeTechnicien){ //Si c'est une tournée Technicien
+                    if (!listeTech.contains(((TourneeTechnicien) t).getTechnician())){
+                        //Si le technicien est déjà dans la liste, on ne l'ajoute pas
+                        listeTech.add(((TourneeTechnicien) t).getTechnician());
+                    }
+                }
+            }
+        }
+        this.numberOfTechnicianUsed = listeTech.size();
+        return listeTech.size();
+    }
+
+    /**
+     * calcul la variable NUMBER_OF_TECHNICIAN_DAYS, : le nombre total de journées technicien utilisées.
+     * @return la valeur de NUMBER_OF_TECHNICIAN_DAYS
+     */
+    public int evalNbTechDays(){
+        int nbTechDays =0;
+        for (LinkedList<Tournee> liste : this.days.values()) {
+            for (Tournee t : liste){
+                if(t instanceof TourneeTechnicien){ //On compte toutes les tournées technicien dans la
+                    nbTechDays+=1;
+                }
+            }
+        }
+        this.numberOfTechnicianDays=nbTechDays;
+        return nbTechDays;
+    }
     /**
      * Calcule le cout complet de la solution
      * @return Rien pour l'instant
