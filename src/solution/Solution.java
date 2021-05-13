@@ -101,7 +101,9 @@ public class Solution {
 
         demand.setInstallationDay(installationDay);
         this.idleMachineCost += this.evalIdleCost(demand);
+        //TODO: faux car duplique les tournées
         this.technicianDistance += tourneeTech.getDistance();
+        //TODO: faux car duplique les tournées
         this.addTourneeToMap(tourneeTech, deliveryDay);
         return true;
     }
