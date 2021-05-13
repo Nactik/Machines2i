@@ -77,35 +77,47 @@ public class Solution {
 
         int deliveryDay = demand.getFirstDay();
         int installationDay = deliveryDay+1; //on installe le jour suivant
-        Technicien tech = null;
+        demand.setInstallationDay(installationDay);
 
-        for(Technicien t : this.instance.getTechnicians().values()){
-            if(t.getMachines().contains(demand.getIdMachine())
-                && t.isAvailable(demand, installationDay)){
-                tech = t;
-                break;
-            }
+        //récupèr un tech dispo
+        Technicien tech = getAvailableTech(demand, installationDay);
+        if(tech == null){
+            //demande ne peut etre traité dans le cas triviale
+            int idleDays = this.instance.getNbDay() - demand.getDeliveryDay();
+            this.idleMachineCost += idleDays*demand.getNbMachines()*this.instance.getMachines().get(demand.getIdMachine()-1).getPenality();
+            return false;
         }
 
-        if(tech == null)
-            return false;
 
+        //récupère la tournee du jour, ou bien une nouvelle si nulle
         TourneeTechnicien tourneeTech = tech.getTourneeOnDay(installationDay);
         if(tourneeTech == null){
             tourneeTech = new TourneeTechnicien(this.instance, tech, deliveryDay);
         }
 
-
+        this.technicianDistance -= tourneeTech.getDistance(); //si nouvelle tournée, ca ne change rien car distance=0
         if(!tourneeTech.addDemand(demand))
             return false;
-
-        demand.setInstallationDay(installationDay);
-        this.idleMachineCost += this.evalIdleCost(demand);
-        //TODO: faux car duplique les tournées
         this.technicianDistance += tourneeTech.getDistance();
-        //TODO: faux car duplique les tournées
-        this.addTourneeToMap(tourneeTech, deliveryDay);
+        this.idleMachineCost += this.evalIdleCost(demand);
+        this.addTourneeToMap(tourneeTech, installationDay);
         return true;
+    }
+
+    /**
+     * Récupère un technicien disponible
+     * @param demand la demande a assigné au technicien
+     * @param installationDay le jour d'installation de la demande
+     * @return le technicien ou null si aucun est dispo
+     */
+    private Technicien getAvailableTech(Demande demand, int installationDay){
+        for(Technicien t : this.instance.getTechnicians().values()){
+            if(t.getMachines().contains(demand.getIdMachine())
+                    && t.isAvailable(demand, installationDay)){
+                return t;
+            }
+        }
+        return null;
     }
 
     /**
@@ -117,7 +129,9 @@ public class Solution {
         if (!days.containsKey(jour)){
             days.put(jour, new LinkedList<>());
         }
-        days.get(jour).add(tournee);
+        LinkedList<Tournee> tourneesOnDay = days.get(jour);
+        tourneesOnDay.remove(tournee);
+        tourneesOnDay.add(tournee);
     }
 
     /**
@@ -126,12 +140,12 @@ public class Solution {
      * @return le cout du temps d'inactivité
      */
     private int evalIdleCost(Demande demand){
-        int idleDay = demand.getInstallationDay() - demand.getDeliveryDay() -1; //-1 car on veut les jours inactifs
+        int idleDays = demand.getInstallationDay() - demand.getDeliveryDay() -1; //-1 car on veut les jours inactifs
 
-        if(idleDay < 0 || demand.getInstallationDay() == -1 || demand.getInstallationDay() <= demand.getDeliveryDay())
+        if(idleDays < 0 || demand.getInstallationDay() == -1 || demand.getInstallationDay() <= demand.getDeliveryDay())
             return Integer.MAX_VALUE;
 
-        return idleDay*demand.getNbMachines()*this.instance.getMachines().get(demand.getIdMachine()-1).getPenality(); //marche seulement si la liste est dans le meme ordre
+        return idleDays*demand.getNbMachines()*this.instance.getMachines().get(demand.getIdMachine()-1).getPenality(); //marche seulement si la liste est dans le meme ordre
     }
 
     /**
