@@ -7,8 +7,6 @@ import io.InstanceReader;
 import io.exception.ReaderException;
 import solution.Solution;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,14 +23,10 @@ public class Triviale implements Solveur{
         for(Map.Entry<Integer,Client> entry : instance.getClients().entrySet()){
             for (Demande demande : entry.getValue().getDemandes()){
                 solution.addDemandNewTourneeTruck(demande);
-                solution.addDemandNewTourneeTech(demande);
+                solution.addDemandTourneeTech(demande);
             }
         }
-        //TODO : Changer ces appels pour ne pas qu'ils soient en dur ici
-        solution.evalNbTruckUsed();
-        solution.evalNbTruckDays();
-        solution.evalNbTechDays();
-        solution.evalNbTechUsed();
+        solution.evalCost();
         return solution;
     }
 
