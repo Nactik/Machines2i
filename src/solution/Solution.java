@@ -88,20 +88,28 @@ public class Solution {
             return false;
         }
 
+        if(!tech.isEmployed())
+            //si le technicien n'a jamais fais de tournée, c'est un nouveau tech, il faut donc le payer
+            this.totalCost += this.instance.getTechCost();
+
 
         //récupère la tournee du jour, ou bien une nouvelle si nulle
         TourneeTechnicien tourneeTech = tech.getTourneeOnDay(installationDay);
         if(tourneeTech == null){
             tourneeTech = new TourneeTechnicien(this.instance, tech, deliveryDay);
+            this.totalCost += this.instance.getTechDayCost(); //si nouvelle tournee => nouveau jour donc on paye un jour de plus
         }
 
         this.technicianDistance -= tourneeTech.getDistance(); //si nouvelle tournée, ca ne change rien car distance=0
+
         if(!tourneeTech.addDemand(demand))
             return false;
+
         this.technicianDistance += tourneeTech.getDistance();
         demand.setInstallationDay(installationDay);
         this.idleMachineCost += this.evalIdleCost(demand);
         this.addTourneeToMap(tourneeTech, installationDay);
+
         return true;
     }
 
@@ -197,9 +205,9 @@ public class Solution {
         return nbTruckDays;
     }
     /**
-     * calcul la variable NUMBER_OF_TRUCKS_USED,: le nombre total de techniciens utilisés.
+     * calcul la variable NUMBER_OF_TECHS_USED,: le nombre total de techniciens utilisés.
      * journée.
-     * @return la valeure de NUMBER_OF_TRUCKS_USED
+     * @return la valeure de NUMBER_OF_TECHS_USED
      */
     private int evalNbTechUsed(){
         LinkedList<Technicien> listeTech = new LinkedList<Technicien>();
@@ -249,10 +257,9 @@ public class Solution {
         totalCost += this.idleMachineCost; //cout penalité
         totalCost += this.truckDistance*this.instance.getTruckDistCost(); //cout des distances camions
         totalCost += this.technicianDistance*this.instance.getTechDistCost(); //cout des distances tech
-        totalCost += this.numberOfTruckUsed*this.instance.getTruckCost()*this.instance.getTruckDayCost();
-        totalCost += this.numberOfTechnicianUsed*this.instance.getTechCost()*this.instance.getTechDayCost();
+        totalCost += this.numberOfTruckUsed*(this.instance.getTruckCost()+this.instance.getTruckDayCost());
 
-        this.totalCost = totalCost;
+        this.totalCost += totalCost;
         return totalCost;
     }
 

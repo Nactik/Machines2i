@@ -81,6 +81,10 @@ public class Technicien {
         return true;
     }
 
+    public boolean isEmployed(){
+        return this.tourneePerDay.size() != 0;
+    }
+
     /**
      * Check gloable du technicien
      * @return true si le technicien est correct, false sinon
