@@ -20,6 +20,14 @@ public class Machine {
         this.penality = penality;
     }
 
+    public int getTypeId() { return typeId; }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getPenality() { return penality; }
+
     @Override
     public String toString() {
         return "Machine {" +

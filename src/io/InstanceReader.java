@@ -62,7 +62,7 @@ public class InstanceReader {
         try{
             FileReader f = new FileReader(this.instanceFile.getAbsolutePath());
             BufferedReader br = new BufferedReader(f);
-
+            String dataSet = lireDataset(br);
             String nom = lireNom(br);
 
             int nbDays = lireLabel(br, "DAYS =");
@@ -91,17 +91,19 @@ public class InstanceReader {
 
             List<Technicien> technicians = lireTechnicians(br, points);
 
-            Instance instance = new Instance(nom, nbDays, truckCapacity, truckMaxDistance, truckDistanceCost, truckDayCost,
+            Instance instance = new Instance(dataSet,nom, nbDays, truckCapacity, truckMaxDistance, truckDistanceCost, truckDayCost,
                     truckCost, techDayCost, techDistCost, techCost, entrepot, machines);
 
+            // on ajoute les clients
             for(Client c : clients) {
                 instance.addClient(c);
             }
 
-            Map<Integer, Technicien> technicansMap = instance.getTechnicians();
-            for(Technicien t : technicians) {
-                technicansMap.put(t.getId(), t);
+            // puis les techniciens
+            for(Technicien t: technicians){
+                instance.addTechnician(t);
             }
+
             br.close();
             f.close();
             return instance;
@@ -126,7 +128,21 @@ public class InstanceReader {
             line = br.readLine();
         }
     }
-
+    /**
+     * Lecture du dataset de l'instance.
+     * La ligne dans le fichier doit commencer par "NAME ="
+     * @param br lecteur courant du fichier d'instance
+     * @return le dataset de l'instance
+     * @throws IOException
+     */
+    private String lireDataset(BufferedReader br) throws IOException {
+        String ligne = br.readLine();
+        while(!ligne.contains("DATASET =")) {
+            ligne = br.readLine();
+        }
+        ligne = ligne.replace("DATASET = ", "");
+        return ligne;
+    }
     /**
      * Lecture du nom de l'instance.
      * La ligne dans le fichier doit commencer par "NAME ="
@@ -239,18 +255,13 @@ public class InstanceReader {
         int lastDay = Integer.parseInt(values[3]);
         int idMachine = Integer.parseInt(values[4]);
         int nbMachine = Integer.parseInt(values[5]);
-
-        Demande demand = new Demande(idDemand, firstDay, lastDay, idMachine, nbMachine);
+        Point p = points.get(idClient);
 
         Client c = clients.get(idClient);
-        if(c != null) {
-            c.addDemande(demand);
-            return null;
-        }
+        if (c == null)
+            c = new Client(p.getId(), p.getX(), p.getY());
 
-        Point p = points.get(idClient);
-        c = new Client(p.getId(), p.getX(), p.getY());
-        c.addDemande(demand);
+        c.addDemande(new Demande(idDemand, firstDay, lastDay, idMachine, nbMachine, c));
         return c;
     }
 
@@ -326,16 +337,16 @@ public class InstanceReader {
             throws NumberFormatException {
         String[] values = ligne.split(" ");
         int idTechnicien = Integer.parseInt(values[0]);
-        Point localisation = points.get(Integer.parseInt(values[1]));
+        Point domicile = points.get(Integer.parseInt(values[1]));
         int distanceMax = Integer.parseInt(values[2]);
         int demandeMax = Integer.parseInt(values[3]);
         Map<Integer,Boolean> canInstall = new LinkedHashMap<>();
 
         for (int i = 4; i < values.length; i++) {
-            canInstall.put(i-3, Integer.parseInt(values[i]) != 0 ? true : false);
+            canInstall.put(i-3, Integer.parseInt(values[i]) != 0);
         }
 
-        Technicien technicien = new Technicien(idTechnicien, localisation, distanceMax, demandeMax, canInstall);
+        Technicien technicien = new Technicien(idTechnicien, domicile, distanceMax, demandeMax, canInstall);
 
         return technicien;
     }

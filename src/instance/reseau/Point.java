@@ -26,10 +26,10 @@ public class Point {
         return true;
     }
 
-    public int getCostTo(Point destination){
+    public int getDistTo(Point destination){
         Route route = this.routeCollection.get(destination);
         if(route == null) return Integer.MAX_VALUE;
-        else return route.getCost();
+        else return route.getDistance();
     }
 
     public int getId() {

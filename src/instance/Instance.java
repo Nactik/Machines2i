@@ -11,6 +11,7 @@ import java.util.Map;
 
 import java.util.LinkedHashMap;
 public class Instance {
+    private String dataset;
     private String name;
     private int nbDay;
     private int truckCapacity;
@@ -26,8 +27,9 @@ public class Instance {
     private Map<Integer, Technicien> technicians;
     private List<Machine> machines;
 
-    public Instance(String name, int nbDay, int truckCapacity, int distMaxTruck, int truckDistCost,
+    public Instance(String dataset,String name, int nbDay, int truckCapacity, int distMaxTruck, int truckDistCost,
                     int truckDayCost, int truckCost, int techDayCost, int techDistCost, int techCost, Entrepot entrepot, List<Machine> machines) {
+        this.dataset = dataset;
         this.name = name;
         this.nbDay = nbDay;
         this.truckCapacity = truckCapacity;
@@ -44,6 +46,11 @@ public class Instance {
         this.machines = machines;
     }
 
+    /**
+     * Ajoute un client à l'instance
+     * @param clientToAdd le client a traiter
+     * @return true si ok, false sinon
+     */
     public boolean addClient(Client clientToAdd){
         if(clientToAdd == null) return false;
         if(!clientToAdd.addRoute(this.entrepot)) return false;
@@ -59,14 +66,89 @@ public class Instance {
         return true;
     }
 
+    /**
+     * Ajoute un technicien à l'instance et crée les routes entre le domicile et les clients
+     * @param techToAdd le technicien à traiter
+     * @return true si ok, false sinon
+     */
+    public boolean addTechnician(Technicien techToAdd){
+        if(techToAdd == null) return false;
+
+        this.technicians.put(techToAdd.getId(), techToAdd);
+        for(Client c: this.clients.values()) {
+            if(!techToAdd.getDomicile().addRoute(c)) return false;
+            c.addRoute(techToAdd.getDomicile());
+        }
+
+        return true;
+    }
+
+
     public Map<Integer, Technicien> getTechnicians() {
         return technicians;
+    }
+
+    public Map<Integer, Client> getClients() {
+        return clients;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDataset() {
+        return dataset;
+    }
+
+    public int getTruckCapacity() {
+        return truckCapacity;
+    }
+
+    public int getDistMaxTruck() {
+        return distMaxTruck;
+    }
+
+    public int getTruckDistCost() {
+        return truckDistCost;
+    }
+
+    public int getTruckDayCost() {
+        return truckDayCost;
+    }
+
+    public int getTruckCost() {
+        return truckCost;
+    }
+
+    public int getNbDay() {
+        return nbDay;
+    }
+
+    public int getTechDayCost() {
+        return techDayCost;
+    }
+
+    public int getTechDistCost() {
+        return techDistCost;
+    }
+
+    public int getTechCost() {
+        return techCost;
+    }
+
+    public List<Machine> getMachines() {
+        return machines;
+    }
+
+    public Entrepot getEntrepot() {
+        return entrepot;
     }
 
     @Override
     public String toString() {
         return "Instance {" +
-                "\n\tname: " + name +
+                "\n\tdataSet: " + dataset +
+                ",\n\tname: " + name +
                 ",\n\tnbDay: " + nbDay +
                 ",\n\ttruckCapacity: " + truckCapacity +
                 ",\n\tdistMaxTruck: " + distMaxTruck +
