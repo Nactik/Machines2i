@@ -29,7 +29,6 @@ public class Triviale implements Solveur{
                 solution.addDemandTourneeTech(demande);
             }
         }
-        solution.evalCost();
         return solution;
     }
 

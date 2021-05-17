@@ -81,6 +81,10 @@ public class Technicien {
         return true;
     }
 
+    /**
+     * Permet de savoir si le technicien a déjà été utilisé dans sa vie (déjà employé)
+     * @return true si le technicien est déjà employé, false sinon
+     */
     public boolean isEmployed(){
         return this.tourneePerDay.size() != 0;
     }
