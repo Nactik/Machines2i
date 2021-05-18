@@ -81,17 +81,33 @@ public class Technicien {
      */
     private boolean needRest(int installationDay){
         int consecutiveDays = 0;
+        int dayCursor;
+        int leftLimit = installationDay - 5; //jour précédent max possible
+        int rightLimit = installationDay + 5; //jour suivant max possible
         Set<Integer> days = this.tourneePerDay.keySet();
 
         //si il n'y a pas de jours dans sa liste, il n'a pas besoin de repos
-        if(days.isEmpty())
-            return false;
+        if(days.isEmpty()) return false;
 
-        while()
+        //parcours vers la gauche, vérif des jours consécutifs préc
+        dayCursor = installationDay - 1;
+        while(days.contains(dayCursor) || dayCursor < leftLimit){
+            consecutiveDays++;
+            dayCursor--;
+        }
 
-        int startingDay = day
+        consecutiveDays++; //car on ajoute le jour durant lequel on veut installer la machine
 
-        if()
+        if(consecutiveDays > 5) return true; //si les jours consécutifs prec + le current exédent 5, il a besoin de repos et ne peut pas gérer la demande
+
+        //parcours vers la droite
+        dayCursor = installationDay + 1;
+        while(days.contains(dayCursor) || dayCursor > rightLimit){
+            consecutiveDays++;
+            dayCursor++;
+        }
+
+        if(consecutiveDays > 5) return true; //si les jours consécutifs prec + le current + les jours suiv exédent 5, il a besoin de repos et ne peut pas gérer la demande
 
         return false;
     }
