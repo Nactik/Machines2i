@@ -123,9 +123,9 @@ public class InstanceReader {
      */
     private void waitLine(BufferedReader br,String label) throws IOException {
         String line = null;
-        line = br.readLine();
+        line = br.readLine().trim();
         while(!line.contains(label)){
-            line = br.readLine();
+            line = br.readLine().trim();
         }
     }
     /**
@@ -136,9 +136,9 @@ public class InstanceReader {
      * @throws IOException
      */
     private String lireDataset(BufferedReader br) throws IOException {
-        String ligne = br.readLine();
+        String ligne = br.readLine().trim();
         while(!ligne.contains("DATASET =")) {
-            ligne = br.readLine();
+            ligne = br.readLine().trim();
         }
         ligne = ligne.replace("DATASET = ", "");
         return ligne;
@@ -148,12 +148,12 @@ public class InstanceReader {
      * La ligne dans le fichier doit commencer par "NAME ="
      * @param br lecteur courant du fichier d'instance
      * @return le nom de l'instance
-     * @throws IOException 
+     * @throws IOException
      */
     private String lireNom(BufferedReader br) throws IOException {
-        String ligne = br.readLine();
+        String ligne = br.readLine().trim();
         while(!ligne.contains("NAME =")) {
-            ligne = br.readLine();
+            ligne = br.readLine().trim();
         }
         ligne = ligne.replace(" ", "");
         ligne = ligne.replace("NAME=", "");
@@ -168,9 +168,9 @@ public class InstanceReader {
      * @throws IOException
      */
     private int lireLabel(BufferedReader br, String label) throws IOException{
-        String ligne = br.readLine();
+        String ligne = br.readLine().trim();
         while(!ligne.contains(label)) {
-            ligne = br.readLine();
+            ligne = br.readLine().trim();
         }
         ligne = ligne.replace(label, "");
         ligne = ligne.replace(" ", "");
@@ -182,16 +182,16 @@ public class InstanceReader {
      * Chaque ligne contient : id, abscisse, ordonnee.
      * @param br lecteur courant du fichier d'instance
      * @return tous les points de l'instance, avec des ids uniques
-     * @throws IOException 
+     * @throws IOException
      */
     private Map<Integer,Point> lirePoints(BufferedReader br) throws IOException {
         Map<Integer, Point> points = new LinkedHashMap<>();
-        String ligne = br.readLine();
+        String ligne = br.readLine().trim();
 
         while(!ligne.isEmpty()) {
             Point p = lireUnPoint(ligne);
             points.put(p.getId(), p);
-            ligne = br.readLine();
+            ligne = br.readLine().trim();
         }
         return points;
     }
@@ -205,14 +205,14 @@ public class InstanceReader {
      */
     private Point lireUnPoint(String ligne) throws NumberFormatException {
         ligne = ligne.strip();
-        String[] values = ligne.split(" ");
+        String[] values = ligne.split("\\s+");
         int id = Integer.parseInt(values[0]);
         int x = Integer.parseInt(values[1]);
         int y = Integer.parseInt(values[2]);
 
         return new Point(id,x,y);
     }
-    
+
     /**
      * Lecture des demandes des clients.
      * Cette methode doit etre appelee juste apres la methode lirePoints.
@@ -226,17 +226,17 @@ public class InstanceReader {
              throws IOException {
          Map<Integer, Client> clients = new LinkedHashMap<>();
          //List<Client> clients = new ArrayList<>();
-         String ligne = br.readLine();
+         String ligne = br.readLine().trim();
          while (!ligne.isEmpty()) {
              Client c = lireUneDemande(ligne, points, clients);
              if (c != null) {
                  clients.put(c.getId(), c);
              }
-             ligne = br.readLine();
+             ligne = br.readLine().trim();
          }
          return new ArrayList<>(clients.values());
      }
-    
+
     /**
      * Lecture d'un client avec ses informations associées.
      * @param ligne ligne du fichier de texte dans laquelle on a l'id du client
@@ -248,7 +248,7 @@ public class InstanceReader {
     private Client lireUneDemande(String ligne, Map<Integer, Point> points, Map<Integer, Client> clients)
             throws NumberFormatException {
 
-        String[] values = ligne.split(" ");
+        String[] values = ligne.split("\\s+");
         int idDemand = Integer.parseInt(values[0]);
         int idClient = Integer.parseInt(values[1]);
         int firstDay = Integer.parseInt(values[2]);
@@ -283,11 +283,11 @@ public class InstanceReader {
      */
     private List<Machine> lireMachines(BufferedReader br) throws IOException {
         List<Machine> machines = new ArrayList();
-        String ligne = br.readLine();
+        String ligne = br.readLine().trim();
         while(!ligne.isEmpty()) {
             Machine m = lireUneMachine(ligne);
             machines.add(m);
-            ligne  = br.readLine();
+            ligne  = br.readLine().trim();
         }
         return machines;
     }
@@ -298,7 +298,7 @@ public class InstanceReader {
      * @return la machine
      */
     private Machine lireUneMachine(String ligne) {
-        String[] values = ligne.split(" ");
+        String[] values = ligne.split("\\s+");
         int typeId = Integer.parseInt(values[0]);
         int size = Integer.parseInt(values[1]);
         int penality = Integer.parseInt(values[2]);
@@ -316,7 +316,7 @@ public class InstanceReader {
             throws IOException {
         List<Technicien> technicians = new ArrayList<>();
         String ligne = br.readLine();
-        while(ligne!=null) {
+        while(ligne != null && !ligne.isEmpty()) {
             Technicien t = lireUnTechnician(ligne, points);
             if(t != null) {
                 technicians.add(t);
@@ -335,7 +335,7 @@ public class InstanceReader {
      */
     private Technicien lireUnTechnician(String ligne, Map<Integer, Point> points)
             throws NumberFormatException {
-        String[] values = ligne.split(" ");
+        String[] values = ligne.trim().split("\\s+");
         int idTechnicien = Integer.parseInt(values[0]);
         Point domicile = points.get(Integer.parseInt(values[1]));
         int distanceMax = Integer.parseInt(values[2]);

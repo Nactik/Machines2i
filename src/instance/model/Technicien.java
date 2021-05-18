@@ -67,12 +67,15 @@ public class Technicien {
     private boolean canHandleDemand(TourneeTechnicien tournee, Demande demand){
         int nbMachinesTotal = 0;
 
-        for(Demande d : tournee.getDemandes()){
-            nbMachinesTotal += d.getNbMachines();
-        }
-
-        if(nbMachinesTotal + demand.getNbMachines() > this.maxDemand)
+        if(tournee.getDemandes().size() + 1 > this.maxDemand)
             return false;
+
+//        for(Demande d : tournee.getDemandes()){
+//            nbMachinesTotal += d.getNbMachines();
+//        }
+//
+//        if(nbMachinesTotal + demand.getNbMachines() > this.maxDemand)
+//            return false;
 
         //TODO : fonctionne que pour une insertion a la fin
         if(tournee.getDistance() + tournee.deltaDistInsertion(tournee.getDemandes().size(), demand) > this.maxDistance)

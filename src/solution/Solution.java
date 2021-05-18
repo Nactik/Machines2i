@@ -109,7 +109,7 @@ public class Solution {
         //récupère la tournee du jour, ou bien une nouvelle si nulle
         TourneeTechnicien tourneeTech = tech.getTourneeOnDay(installationDay);
         if(tourneeTech == null){
-            tourneeTech = new TourneeTechnicien(this.instance, tech, deliveryDay);
+            tourneeTech = new TourneeTechnicien(this.instance, tech, installationDay);
             this.totalCost += this.instance.getTechDayCost(); //si nouvelle tournee => nouveau jour donc on paye un jour de plus
             this.numberOfTechnicianDays ++;
         }

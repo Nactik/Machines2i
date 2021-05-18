@@ -44,7 +44,7 @@ public class SolutionWriter {
 
         //key = day, value= List<Tournee>
         this.solution.getDays().forEach((key,value) -> {
-            pw.println("DAYS = " + key);
+            pw.println("DAY = " + key);
 
             List<TourneeCamion> tourneeTruck = new LinkedList<TourneeCamion>();
             List<TourneeTechnicien> tourneeTechnician = new LinkedList<TourneeTechnicien>();
@@ -59,7 +59,7 @@ public class SolutionWriter {
             if(tourneeTruck.size() > 0){
                 int truckId = 1;
                 for(TourneeCamion t : tourneeTruck){
-                    pw.println((truckId++) + getDemandeSequence(t));
+                    pw.println((truckId++) + " " + getDemandeSequence(t));
                 }
             }
 
