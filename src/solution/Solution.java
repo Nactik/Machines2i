@@ -7,20 +7,18 @@ import instance.reseau.Client;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 
 public class Solution {
     private Instance instance;
-    private int truckDistance;
-    private int numberOfTruckDays;
-    private int numberOfTruckUsed;
-    private int technicianDistance;
-    private int numberOfTechnicianDays;
-    private int numberOfTechnicianUsed;
-    private int idleMachineCost;
-    private int totalCost;
+    private long truckDistance;
+    private long numberOfTruckDays;
+    private long numberOfTruckUsed;
+    private long technicianDistance;
+    private long numberOfTechnicianDays;
+    private long numberOfTechnicianUsed;
+    private long idleMachineCost;
+    private long totalCost;
     private HashMap<Integer, LinkedList<Tournee>> days;
 
     private Solution(){
@@ -73,7 +71,7 @@ public class Solution {
 
         this.numberOfTruckDays ++; //nouvelle tournée donc nouveau jour
         this.truckDistance += tourneeCamion.getDistance();
-        this.totalCost += tourneeCamion.getDistance()*this.instance.getTruckDistCost();
+        this.totalCost += (long) tourneeCamion.getDistance()*this.instance.getTruckDistCost();
         this.totalCost += this.instance.getTruckDayCost(); //nouvelle tournée donc on paie un jour en plus
         this.addTourneeToMap(tourneeCamion, demand.getFirstDay());
         return true;
@@ -84,7 +82,7 @@ public class Solution {
      * @param demand la demande a ajouter
      */
     public boolean addDemandTourneeTech(Demande demand){
-        int idleCost = 0;
+        int idleCost;
         if(demand == null) return false;
 
         int deliveryDay = demand.getFirstDay();
@@ -115,13 +113,13 @@ public class Solution {
         }
 
         this.technicianDistance -= tourneeTech.getDistance(); //si nouvelle tournée, ca ne change rien car distance=0
-        this.totalCost -= (tourneeTech.getDistance()*this.instance.getTechDistCost());
+        this.totalCost -= ((long)tourneeTech.getDistance() *this.instance.getTechDistCost());
 
         if(!tourneeTech.addDemand(demand))
             return false;
 
         this.technicianDistance += tourneeTech.getDistance();
-        this.totalCost += (tourneeTech.getDistance()*this.instance.getTechDistCost());
+        this.totalCost += ((long) tourneeTech.getDistance()*this.instance.getTechDistCost());
 
         demand.setInstallationDay(installationDay);
         idleCost = this.evalIdleCost(demand);
@@ -231,8 +229,8 @@ public class Solution {
      * Calcul la distance des camions totale dans la solution
      * @return la distance
      */
-    private int checkTruckDistance(){
-        int truckDistance = 0;
+    private long checkTruckDistance(){
+        long truckDistance = 0;
 
         for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
             LinkedList<Tournee> tournees = entry.getValue();
@@ -249,8 +247,8 @@ public class Solution {
      * Calcul la distance des techniciens totale dans la solution
      * @return la distance
      */
-    private int checkTechnicianDistance(){
-        int technicianDistance = 0;
+    private long checkTechnicianDistance(){
+        long technicianDistance = 0;
 
         for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
             LinkedList<Tournee> tournees = entry.getValue();
@@ -267,8 +265,8 @@ public class Solution {
      * Vérifie le cout des pénalités d'inactivité des machines
      * @return le cout d'inactivité total
      */
-    private int checkIdleCost(){
-        int idleCost = 0;
+    private long checkIdleCost(){
+        long idleCost = 0;
 
         for(Map.Entry<Integer, Client> entry : this.instance.getClients().entrySet()) {
             Client client = entry.getValue();
@@ -285,7 +283,7 @@ public class Solution {
      * journée.
      * @return la valeure de NUMBER_OF_TECHS_USED
      */
-    private int checkNbTechUsed(){
+    private long checkNbTechUsed(){
         LinkedList<Technicien> listeTech = new LinkedList<>();
         for (LinkedList<Tournee> liste : this.days.values()) {
             for (Tournee t : liste){ //On parcourt chaque tournée de chaque jour
@@ -304,8 +302,8 @@ public class Solution {
      * calcul la variable NUMBER_OF_TECHNICIAN_DAYS, : le nombre total de journées technicien utilisées.
      * @return la valeur de NUMBER_OF_TECHNICIAN_DAYS
      */
-    private int checkNbTechDays(){
-        int nbTechDays =0;
+    private long checkNbTechDays(){
+        long nbTechDays =0;
         for (LinkedList<Tournee> liste : this.days.values()) {
             for (Tournee t : liste){
                 if(t instanceof TourneeTechnicien){ //On compte toutes les tournées technicien
@@ -321,8 +319,8 @@ public class Solution {
      * journée.
      * @return la valeure de NUMBER_OF_TRUCKS_USED
      */
-    private int checkNbTruckUsed(){
-        int maxNbTruck = 0;
+    private long checkNbTruckUsed(){
+        long maxNbTruck = 0;
         int nbTruck = 0;
         for (LinkedList<Tournee> liste : this.days.values()) {
             for (Tournee t : liste){ //On parcourt chaque tournée de chaque jour
@@ -342,8 +340,8 @@ public class Solution {
      * calcul la variable NUMBER_OF_TRUCK_DAYS, le nombre total de journées camion utilisées.
      * @return la valeur de NUMBER_OF_TRUCK_DAYS
      */
-    private int checkNbTruckDays(){
-        int nbTruckDays =0;
+    private long checkNbTruckDays(){
+        long nbTruckDays =0;
         for (LinkedList<Tournee> liste : this.days.values()) {
             for (Tournee t : liste){
                 if(t instanceof TourneeCamion){
@@ -358,14 +356,15 @@ public class Solution {
      * Vérifie le cout total de la solution
      * @return la vérification du cout total de la solution
      */
-    private int checkTotalCost(){
-        int totalCost = 0;
-        totalCost += this.checkTruckDistance()*this.instance.getTruckDistCost();
-        totalCost += this.checkTechnicianDistance()*this.instance.getTechDistCost();
-        totalCost += this.checkNbTechUsed()*this.instance.getTechCost();
-        totalCost += this.checkNbTruckUsed()*this.instance.getTruckCost();
-        totalCost += this.checkNbTechDays()*this.instance.getTechDayCost();
-        totalCost += this.checkNbTruckDays()*this.instance.getTruckDayCost();
+
+    private long checkTotalCost(){
+        long totalCost = 0;
+        totalCost += this.checkTruckDistance()* this.instance.getTruckDistCost();
+        totalCost += this.checkTechnicianDistance() * this.instance.getTechDistCost();
+        totalCost += this.checkNbTechUsed() * this.instance.getTechCost();
+        totalCost += this.checkNbTruckUsed() * this.instance.getTruckCost();
+        totalCost += this.checkNbTechDays() * this.instance.getTechDayCost();
+        totalCost += this.checkNbTruckDays() * this.instance.getTruckDayCost();
         totalCost += this.checkIdleCost();
         return totalCost;
     }
@@ -374,35 +373,35 @@ public class Solution {
         return instance;
     }
 
-    public int getTruckDistance() {
+    public long getTruckDistance() {
         return truckDistance;
     }
 
-    public int getNumberOfTruckDays() {
+    public long getNumberOfTruckDays() {
         return numberOfTruckDays;
     }
 
-    public int getNumberOfTruckUsed() {
+    public long getNumberOfTruckUsed() {
         return numberOfTruckUsed;
     }
 
-    public int getTechnicianDistance() {
+    public long getTechnicianDistance() {
         return technicianDistance;
     }
 
-    public int getNumberOfTechnicianDays() {
+    public long getNumberOfTechnicianDays() {
         return numberOfTechnicianDays;
     }
 
-    public int getNumberOfTechnicianUsed() {
+    public long getNumberOfTechnicianUsed() {
         return numberOfTechnicianUsed;
     }
 
-    public int getIdleMachineCost() {
+    public long getIdleMachineCost() {
         return idleMachineCost;
     }
 
-    public int getTotalCost() {
+    public long getTotalCost() {
         return totalCost;
     }
 

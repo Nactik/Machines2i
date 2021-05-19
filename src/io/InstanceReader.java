@@ -155,8 +155,8 @@ public class InstanceReader {
         while(!ligne.contains("NAME =")) {
             ligne = br.readLine().trim();
         }
+        ligne = ligne.replace("NAME =", "");
         ligne = ligne.replace(" ", "");
-        ligne = ligne.replace("NAME=", "");
         return ligne;
     }
 

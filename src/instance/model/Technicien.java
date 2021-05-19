@@ -5,6 +5,7 @@ import solution.TourneeTechnicien;
 
 
 import java.util.*;
+import java.util.stream.Collector;
 
 public class Technicien {
     private int id;
@@ -49,9 +50,10 @@ public class Technicien {
         if(demand == null || day < 0) return false;
         TourneeTechnicien t = this.tourneePerDay.get(day);
         //TODO : fonctionne que pour une insertion a la fin
-        //TODO : vérifier les jours de repos
-        if(t == null) this.needRest(day); //on check car il n'a jamais trvaillé le joir la
-        return canHandleDemand(t, demand);
+        boolean needRest = false;
+        if(t == null)
+            needRest = this.doesNeedRest(day); //on check car il n'a jamais trvaillé le joir la
+        return canHandleDemand(t, demand) && !needRest;
     }
 
     /**
@@ -79,37 +81,60 @@ public class Technicien {
      * Permet de savoir si le technicien a besoin de repos ou non
      * @return true si il a besoin de repos, false sinon
      */
-    private boolean needRest(int installationDay){
-        int consecutiveDays = 0;
-        int dayCursor;
-        int leftLimit = installationDay - 5; //jour précédent max possible
-        int rightLimit = installationDay + 5; //jour suivant max possible
-        Set<Integer> days = this.tourneePerDay.keySet();
+    private boolean doesNeedRest(int installationDay){
+        Set<Integer> daysWorkedKey = this.tourneePerDay.keySet(); //on récupère les jours travaillés
+        LinkedList<Integer> daysWorked = new LinkedList<>(daysWorkedKey); //stockage dans list pour acceder
 
-        //si il n'y a pas de jours dans sa liste, il n'a pas besoin de repos
-        if(days.isEmpty()) return false;
+        daysWorked.add(installationDay); //on ajoute le possible nouveau jour pour test
+        Collections.sort(daysWorked); //on la trie (important pour le formattage
 
-        //parcours vers la gauche, vérif des jours consécutifs préc
-        dayCursor = installationDay - 1;
-        while(days.contains(dayCursor) || dayCursor < leftLimit){
-            consecutiveDays++;
-            dayCursor--;
+        //on récupère les jours travaillés ou non, notés 1 et 0
+        LinkedList<Integer> techPlannig = this.getPlannigFromDaysWorked(daysWorked);
+
+        if(techPlannig.size() <= 5)
+            return false;
+
+
+        for(int i=0; i<techPlannig.size()-5; i++){
+            int consecutiveDaysWorked = 0, checkRestDays = 0;
+
+            for(int j=i; j<i+5; j++){
+                consecutiveDaysWorked += techPlannig.get(j);
+            }
+            
+            if(consecutiveDaysWorked == 5){
+                for(int j=i+5; j<i+7; j++){
+                    if(j >= techPlannig.size() || techPlannig.get(j) == 0)
+                        checkRestDays++;
+                }
+            }
+
+            if(consecutiveDaysWorked == 5 && checkRestDays != 2)
+                return true;
         }
-
-        consecutiveDays++; //car on ajoute le jour durant lequel on veut installer la machine
-
-        if(consecutiveDays > 5) return true; //si les jours consécutifs prec + le current exédent 5, il a besoin de repos et ne peut pas gérer la demande
-
-        //parcours vers la droite
-        dayCursor = installationDay + 1;
-        while(days.contains(dayCursor) || dayCursor > rightLimit){
-            consecutiveDays++;
-            dayCursor++;
-        }
-
-        if(consecutiveDays > 5) return true; //si les jours consécutifs prec + le current + les jours suiv exédent 5, il a besoin de repos et ne peut pas gérer la demande
 
         return false;
+    }
+
+    /**
+     * Formate une liste de numéros jours travaillés en une liste de 0 et de 1 en fonction des index
+     * @param daysWorkedSorted  liste de numéros jours travaillés
+     * @return liste de 0 et de 1 en fonction des index
+     */
+    private LinkedList<Integer> getPlannigFromDaysWorked(LinkedList<Integer> daysWorkedSorted){
+        LinkedList<Integer> formatedDaysWorkedList = new LinkedList<>();
+        int maxNumDayWorked = daysWorkedSorted.getLast(); //On récupère la dernière valeur, qui doit etre le jour max travaillé (logiquement)
+
+        //On crée une liste. L'index correspond au numéro du jour, la valeur correspnd a si il est travaillé ou non
+        //1 travaillé, 0 pas travaillé
+        for(int i = 1; i <= maxNumDayWorked; i++){
+            if(daysWorkedSorted.contains(i))
+                formatedDaysWorkedList.add(1);
+            else
+                formatedDaysWorkedList.add(0);
+        }
+
+        return formatedDaysWorkedList;
     }
 
     /**
@@ -193,5 +218,28 @@ public class Technicien {
                 ", maxDemand: " + maxDemand +
                 ", machines: " + machines +
                 '}';
+    }
+
+    public static void main(String[] args) {
+//        int[] workedDaysArray = new int[] {1, 2, 3, 5, 7};
+//        LinkedList<Integer> workedDaysList = new LinkedList<>();
+//        LinkedList<Integer> formatedWorkedDaysList;
+//
+//        for(int d: workedDaysArray){
+//            workedDaysList.add(d);
+//        }
+//
+////        System.out.println(workedDaysList);
+////
+////        formatedWorkedDaysList = Technicien.getPlannigFromDaysWorked(workedDaysList);
+////        System.out.println(formatedWorkedDaysList);
+////
+////        workedDaysList.add(4);
+////        Collections.sort(workedDaysList);
+////        formatedWorkedDaysList = Technicien.getPlannigFromDaysWorked(workedDaysList);
+////
+////        System.out.println(formatedWorkedDaysList);
+//
+//        Technicien.doesNeedRest(workedDaysList, 4);
     }
 }
