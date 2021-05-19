@@ -101,7 +101,7 @@ public class Technicien {
             for(int j=i; j<i+5; j++){
                 consecutiveDaysWorked += techPlannig.get(j);
             }
-            
+
             if(consecutiveDaysWorked == 5){
                 for(int j=i+5; j<i+7; j++){
                     if(j >= techPlannig.size() || techPlannig.get(j) == 0)
