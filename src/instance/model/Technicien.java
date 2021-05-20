@@ -196,6 +196,10 @@ public class Technicien {
         return this.tourneePerDay.get(day);
     }
 
+    public int getMaxDemand() {
+        return this.maxDemand;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

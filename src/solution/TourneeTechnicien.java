@@ -76,6 +76,16 @@ public class TourneeTechnicien extends Tournee {
     }
 
     @Override
+    public int getMaxDemCap() {
+        return this.technician.getMaxDemand();
+    }
+
+    @Override
+    public int getDemCap() {
+        return this.demandes.size();
+    }
+
+    @Override
     public String toString() {
         return "TourneeTechnicien{" +
                 "demandes=" + demandes +

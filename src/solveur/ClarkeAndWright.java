@@ -6,6 +6,7 @@ import instance.reseau.Client;
 import io.InstanceReader;
 import io.SolutionWriter;
 import io.exception.ReaderException;
+import operateur.FusionTournees;
 import solution.Solution;
 
 import java.io.FileNotFoundException;
@@ -14,36 +15,53 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Triviale implements Solveur{
+public class ClarkeAndWright implements Solveur {
 
     @Override
     public String getNom() {
-        return "Triviale";
+        return "Clarke And Wright";
     }
 
     @Override
     public Solution solve(Instance instance) {
         Solution solution  = new Solution(instance);
-        for(Map.Entry<Integer,Client> entry : instance.getClients().entrySet()){
+
+        for(Map.Entry<Integer, Client> entry : instance.getClients().entrySet()){
             for (Demande demande : entry.getValue().getDemandes()){
                 solution.addDemandNewTourneeTruck(demande);
+            }
+        }
+
+        boolean fusion = true;
+        while(fusion){
+            FusionTournees ft = solution.getMeilleureFusion();
+            if(!ft.isMouvementRealisable() || !solution.doFusion(ft))
+                fusion = false;
+
+        }
+
+        for(Map.Entry<Integer, Client> entry : instance.getClients().entrySet()){
+            for (Demande demande : entry.getValue().getDemandes()){
                 solution.addDemandTourneeTech(demande);
             }
         }
+
+
         return solution;
     }
 
     public static void main(String[] args) {
         InstanceReader reader;
         try {
-            reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_03_easy.txt");
-            //reader = new InstanceReader("exemple/testInstance.txt");
+            //reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_03_easy.txt");
+            reader = new InstanceReader("exemple/testInstance.txt");
             Instance instance =  reader.readInstance();
-            Triviale triviale = new Triviale();
-            System.out.println(triviale.getNom());
+            ClarkeAndWright caw = new ClarkeAndWright();
+            System.out.println(caw.getNom());
 
-            Solution solution = triviale.solve(instance);
+            Solution solution = caw.solve(instance);
             System.out.println(solution.toString());
+
             if(solution.check()) System.out.println("Solution OK");
             else System.out.println("Solution NOK");
 
@@ -51,10 +69,9 @@ public class Triviale implements Solveur{
             io.writeSolution();
         } catch (ReaderException ex) {
             Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
+
 }

@@ -1,14 +1,14 @@
 package solution;
 
-import instance.Instance;
 import instance.model.Demande;
 import instance.reseau.Client;
 import instance.reseau.Entrepot;
 import instance.reseau.Point;
+import operateur.FusionTournees;
+import operateur.Operateur;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 public abstract class Tournee {
 
@@ -18,7 +18,7 @@ public abstract class Tournee {
     protected int distance;
 
     public Tournee() {
-        this.demandes = new ArrayList<>();
+        this.demandes = new LinkedList<>();
     }
 
     public Tournee(Entrepot entrepot, int day){
@@ -101,12 +101,38 @@ public abstract class Tournee {
         return true;
     }
 
+
+    public boolean doFusion(FusionTournees infos){
+        if(infos == null) return false;
+        this.demandes.addAll(infos.getaFusionner().getDemandes());
+
+        if(this instanceof TourneeCamion){
+            ((TourneeCamion) this).majCap(infos.getaFusionner().getDemCap());
+        }
+
+        this.distance += infos.getaFusionner().getDistance() + infos.getDeltaDist();
+
+        return check();
+    }
+
+    public int deltaDistFusion(Tournee aFusionner){
+        Point first = aFusionner.getCurrent(0);
+        Point last = this.getCurrent(this.demandes.size()-1);
+
+        return - last.getDistTo(this.entrepot) + last.getDistTo(first) - aFusionner.entrepot.getDistTo(first);
+        //return last.getCoutVers(first) - last.getCoutVers(this.depot) - aFusionner.depot.getCoutVers(first);
+    }
+
     public List<Demande> getDemandes() {
         return demandes;
     }
 
     public int getDistance() {
         return distance;
+    }
+
+    public int getDay() {
+        return day;
     }
 
     public abstract int evalCost();
@@ -116,6 +142,10 @@ public abstract class Tournee {
     protected abstract Point getCurrent(int position);
 
     public abstract boolean addDemand(Demande demand);
+
+    public abstract int getMaxDemCap();
+
+    public abstract int getDemCap();
 
     public abstract boolean check();
 }

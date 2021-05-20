@@ -4,9 +4,10 @@ import instance.Instance;
 import instance.model.Demande;
 import instance.model.Technicien;
 import instance.reseau.Client;
-
+import operateur.FusionTournees;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class Solution {
@@ -189,6 +190,82 @@ public class Solution {
             //marche seulement si la liste est dans le meme ordre
             return idleDays * demand.getNbMachines() * this.instance.getMachines().get(demand.getIdMachine() - 1).getPenality();
         }
+    }
+
+    private int getMaxTourneeTruck(){
+        return this.days.values().stream()
+                .filter(l -> l.getFirst() instanceof TourneeCamion)
+                .mapToInt(List::size).max().getAsInt();
+    }
+
+    /**
+     * Réalise la fusion de deux tournées
+     * @param infos les infos de la tournée a fusionner
+     * @return true si ok, false sinon
+     */
+    public boolean doFusion(FusionTournees infos){
+        if(!infos.doMouvementIfRealisable() || !infos.isMouvementAmeliorant()) return false;
+        this.days.get(infos.getaFusionner().getDay()).remove(infos.getaFusionner());
+
+        //TODO : faire une fct qui maj quand ya tech
+        this.truckDistance+= infos.getDeltaDist();
+        this.numberOfTruckDays --;
+        if(this.getMaxTourneeTruck() < this.numberOfTruckUsed)
+            this.numberOfTruckUsed --;
+
+        long distCost = (infos.getaFusionner() instanceof TourneeCamion) ? this.instance.getTruckDistCost() : this.instance.getTechDistCost();
+
+        //TODO : ICI ça marche, surement une erreur dans le getDeltaDist
+        this.totalCost +=  ((long)infos.getDeltaDist() * distCost);
+
+        return true;
+    }
+
+
+    /**
+     * Récupère la meilleure fusion de tournée
+     * @return le meilleur opérateur de fusion
+     */
+    public FusionTournees getMeilleureFusion() {
+        if(this.days.isEmpty()) return new FusionTournees();
+
+        FusionTournees best = new FusionTournees(), test;
+
+        for(List<Tournee> list : this.days.values()){
+            for (Tournee t: list) {
+                test = this.getMeilleureFusion(t);
+                if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
+                    best = test;
+                }
+            }
+        }
+
+        return best;
+    }
+
+    /**
+     * Récupère le meilleur opérateur de tournée pour une tournée donnée
+     * @param mTournee la tournée
+     * @return le meilleur opérateur
+     */
+    private FusionTournees getMeilleureFusion(Tournee mTournee){
+        if(mTournee.getDemCap() == 0) return new FusionTournees();
+
+        FusionTournees best = new FusionTournees(), test = new FusionTournees();
+
+        for (Tournee t: this.days.get(mTournee.getDay())) {
+            //filtre sur les tournee du même type que mTournee
+            if(t.getClass().isInstance(mTournee)) {
+                if(!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()){
+                    test = new FusionTournees(mTournee, t);
+                }
+                if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
+                    best = test;
+                }
+            }
+        }
+
+        return best;
     }
 
     /**

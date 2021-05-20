@@ -4,6 +4,7 @@ import instance.Instance;
 import instance.model.Demande;
 import instance.model.Machine;
 import instance.reseau.Point;
+import operateur.Operateur;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -104,6 +105,14 @@ public class TourneeCamion extends Tournee{
     }
 
     /**
+     * Maj la capacité du camion avec la nouvelle capacité
+     * @param capacityToAdd la capacité a ajouter
+     */
+    public void majCap(int capacityToAdd){
+        this.capacity += capacityToAdd;
+    }
+
+    /**
      * Check gloable de la tournée
      * @return true si la tournée est correcte, false sinon
      */
@@ -128,6 +137,16 @@ public class TourneeCamion extends Tournee{
         }
 
         return checkCapacity;
+    }
+
+    @Override
+    public int getMaxDemCap() {
+        return this.maxCapacity;
+    }
+
+    @Override
+    public int getDemCap() {
+        return this.capacity;
     }
 
     @Override
