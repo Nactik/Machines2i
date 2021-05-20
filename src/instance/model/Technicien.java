@@ -50,7 +50,7 @@ public class Technicien {
         TourneeTechnicien t = this.tourneePerDay.get(day);
         //TODO : fonctionne que pour une insertion a la fin
         //TODO : vérifier les jours de repos
-        if(t == null) this.needRest(day); //on check car il n'a jamais trvaillé le joir la
+        //if(t == null) this.needRest(day); //on check car il n'a jamais trvaillé le joir la
         return canHandleDemand(t, demand);
     }
 
@@ -79,7 +79,7 @@ public class Technicien {
      * Permet de savoir si le technicien a besoin de repos ou non
      * @return true si il a besoin de repos, false sinon
      */
-    private boolean needRest(int installationDay){
+    /*private boolean needRest(int installationDay){
         int consecutiveDays = 0;
         Set<Integer> days = this.tourneePerDay.keySet();
 
@@ -94,7 +94,7 @@ public class Technicien {
         if()
 
         return false;
-    }
+    }**/
 
     /**
      * Permet de savoir si le technicien a déjà été utilisé dans sa vie (déjà employé)
