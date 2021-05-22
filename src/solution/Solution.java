@@ -207,16 +207,22 @@ public class Solution {
         if(!infos.doMouvementIfRealisable() || !infos.isMouvementAmeliorant()) return false;
         this.days.get(infos.getaFusionner().getDay()).remove(infos.getaFusionner());
 
-        //TODO : faire une fct qui maj quand ya tech
+        //TODO : faire une fonction générique qui maj tout
         this.truckDistance+= infos.getDeltaDist();
         this.numberOfTruckDays --;
-        if(this.getMaxTourneeTruck() < this.numberOfTruckUsed)
+        this.totalCost -= this.instance.getTruckDayCost();
+
+        if(this.getMaxTourneeTruck() < this.numberOfTruckUsed){
+            this.totalCost -= this.instance.getTruckCost();
             this.numberOfTruckUsed --;
+        }
+
 
         long distCost = (infos.getaFusionner() instanceof TourneeCamion) ? this.instance.getTruckDistCost() : this.instance.getTechDistCost();
 
-        //TODO : ICI ça marche, surement une erreur dans le getDeltaDist
+        //TODO : ICI ça marche pas, surement une erreur dans le getDeltaDist
         this.totalCost +=  ((long)infos.getDeltaDist() * distCost);
+
 
         return true;
     }
