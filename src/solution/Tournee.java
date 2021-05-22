@@ -119,8 +119,12 @@ public abstract class Tournee {
         Point first = aFusionner.getCurrent(0);
         Point last = this.getCurrent(this.demandes.size()-1);
 
-        return - last.getDistTo(this.entrepot) + last.getDistTo(first) - aFusionner.entrepot.getDistTo(first);
-        //return last.getCoutVers(first) - last.getCoutVers(this.depot) - aFusionner.depot.getCoutVers(first);
+        int deltaDistFusion =  -last.getDistTo(this.entrepot) + last.getDistTo(first) - aFusionner.entrepot.getDistTo(first);
+
+        if(this.distance + deltaDistFusion + aFusionner.getDistance() > this.getMaxDist())
+            return Integer.MAX_VALUE;
+
+        return deltaDistFusion;
     }
 
     public List<Demande> getDemandes() {
@@ -135,8 +139,6 @@ public abstract class Tournee {
         return day;
     }
 
-    public abstract int evalCost();
-
     protected abstract Point getPrec(int position);
 
     protected abstract Point getCurrent(int position);
@@ -146,6 +148,8 @@ public abstract class Tournee {
     public abstract int getMaxDemCap();
 
     public abstract int getDemCap();
+
+    public abstract int getMaxDist();
 
     public abstract boolean check();
 }

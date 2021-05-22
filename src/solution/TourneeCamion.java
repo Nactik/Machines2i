@@ -150,6 +150,11 @@ public class TourneeCamion extends Tournee{
     }
 
     @Override
+    public int getMaxDist() {
+        return this.maxDistance;
+    }
+
+    @Override
     public String toString() {
         return "TourneeCamion{" +
                 "demandes=" + demandes +
@@ -159,10 +164,5 @@ public class TourneeCamion extends Tournee{
                 ", maxDistance=" + maxDistance +
                 ", entrepot=" + entrepot +
                 '}';
-    }
-
-    @Override
-    public int evalCost() {
-        return 0;
     }
 }

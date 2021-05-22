@@ -36,8 +36,8 @@ public class Triviale implements Solveur{
     public static void main(String[] args) {
         InstanceReader reader;
         try {
-            reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_03_easy.txt");
             //reader = new InstanceReader("exemple/testInstance.txt");
+            reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_09_easy.txt");
             Instance instance =  reader.readInstance();
             Triviale triviale = new Triviale();
             System.out.println(triviale.getNom());
@@ -47,7 +47,7 @@ public class Triviale implements Solveur{
             if(solution.check()) System.out.println("Solution OK");
             else System.out.println("Solution NOK");
 
-            SolutionWriter io = new SolutionWriter(solution);
+            SolutionWriter io = new SolutionWriter(solution, triviale.getNom());
             io.writeSolution();
         } catch (ReaderException ex) {
             Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);

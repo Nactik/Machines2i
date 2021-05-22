@@ -204,7 +204,12 @@ public class Solution {
      * @return true si ok, false sinon
      */
     public boolean doFusion(FusionTournees infos){
-        if(!infos.doMouvementIfRealisable() || !infos.isMouvementAmeliorant()) return false;
+        if(!infos.isMouvementAmeliorant() || !infos.doMouvementIfRealisable()) return false;
+
+        infos.getaFusionner().getDemandes().forEach(d -> {
+            System.out.println(d.getId());
+        });
+
         this.days.get(infos.getaFusionner().getDay()).remove(infos.getaFusionner());
 
         //TODO : faire une fonction générique qui maj tout
@@ -216,13 +221,8 @@ public class Solution {
             this.totalCost -= this.instance.getTruckCost();
             this.numberOfTruckUsed --;
         }
-
-
         long distCost = (infos.getaFusionner() instanceof TourneeCamion) ? this.instance.getTruckDistCost() : this.instance.getTechDistCost();
-
-        //TODO : ICI ça marche pas, surement une erreur dans le getDeltaDist
         this.totalCost +=  ((long)infos.getDeltaDist() * distCost);
-
 
         return true;
     }
@@ -279,8 +279,6 @@ public class Solution {
      * @return true si tout est ok, false sinon
      */
     public boolean check(){
-        // vérifier le cout total de la solution
-
         for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
             LinkedList<Tournee> tournees = entry.getValue();
             for(Tournee t : tournees){

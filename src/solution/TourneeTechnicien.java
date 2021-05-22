@@ -100,12 +100,12 @@ public class TourneeTechnicien extends Tournee {
         return distance;
     }
 
-    @Override
-    public int evalCost() {
-        return 0;
-    }
-
     public Technicien getTechnician() {
         return technician;
+    }
+
+    @Override
+    public int getMaxDist() {
+        return this.getTechnician().getMaxDistance();
     }
 }

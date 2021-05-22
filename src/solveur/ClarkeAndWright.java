@@ -19,7 +19,7 @@ public class ClarkeAndWright implements Solveur {
 
     @Override
     public String getNom() {
-        return "Clarke And Wright";
+        return "ClarkeAndWright";
     }
 
     @Override
@@ -35,7 +35,7 @@ public class ClarkeAndWright implements Solveur {
         boolean fusion = true;
         while(fusion){
             FusionTournees ft = solution.getMeilleureFusion();
-            if(!ft.isMouvementRealisable() || !solution.doFusion(ft))
+            if(!ft.isMouvementRealisable() || !ft.isMouvementAmeliorant() || !solution.doFusion(ft))
                 fusion = false;
 
         }
@@ -53,8 +53,8 @@ public class ClarkeAndWright implements Solveur {
     public static void main(String[] args) {
         InstanceReader reader;
         try {
-            //reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_03_easy.txt");
-            reader = new InstanceReader("exemple/testInstance.txt");
+            //reader = new InstanceReader("exemple/testInstance.txt");
+            reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_05_easy.txt");
             Instance instance =  reader.readInstance();
             ClarkeAndWright caw = new ClarkeAndWright();
             System.out.println(caw.getNom());
@@ -65,7 +65,7 @@ public class ClarkeAndWright implements Solveur {
             if(solution.check()) System.out.println("Solution OK");
             else System.out.println("Solution NOK");
 
-            SolutionWriter io = new SolutionWriter(solution);
+            SolutionWriter io = new SolutionWriter(solution, caw.getNom());
             io.writeSolution();
         } catch (ReaderException ex) {
             Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);

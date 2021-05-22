@@ -89,22 +89,22 @@ public class Technicien {
         Collections.sort(daysWorked); //on la trie (important pour le formattage
 
         //on récupère les jours travaillés ou non, notés 1 et 0
-        LinkedList<Integer> techPlannig = this.getPlannigFromDaysWorked(daysWorked);
+        LinkedList<Integer> techPlanning = this.getPlannigFromDaysWorked(daysWorked);
 
-        if(techPlannig.size() <= 5)
+        if(techPlanning.size() <= 5)
             return false;
 
 
-        for(int i=0; i<techPlannig.size()-5; i++){
+        for(int i=0; i<techPlanning.size()-5; i++){
             int consecutiveDaysWorked = 0, checkRestDays = 0;
 
             for(int j=i; j<i+5; j++){
-                consecutiveDaysWorked += techPlannig.get(j);
+                consecutiveDaysWorked += techPlanning.get(j);
             }
 
             if(consecutiveDaysWorked == 5){
                 for(int j=i+5; j<i+7; j++){
-                    if(j >= techPlannig.size() || techPlannig.get(j) == 0)
+                    if(j >= techPlanning.size() || techPlanning.get(j) == 0)
                         checkRestDays++;
                 }
             }
@@ -198,6 +198,10 @@ public class Technicien {
 
     public int getMaxDemand() {
         return this.maxDemand;
+    }
+
+    public int getMaxDistance() {
+        return maxDistance;
     }
 
     @Override
