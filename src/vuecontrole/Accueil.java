@@ -52,17 +52,20 @@ public class Accueil extends JFrame implements ActionListener {
     private JLabel instanceNbRequest;
     private JLabel instanceNbMachines;
     private JLabel instanceNbTech;
+    private JList listSolution;
     private String currentMenu;
 
     private final String backWhite = "#FFFFFF";
     private final String backGrey = "#D0C6C6";
     private final String tomatoe = "#FF6347";
 
-    private String currentDirectory;
+    private String currentInstanceDirectory;
+    private String currentSolutionDirectory;
 
     public Accueil() {
         currentMenu = "";
-        currentDirectory = "instancesProg";
+        currentInstanceDirectory = "instancesProg";
+        currentSolutionDirectory = "solution";
 
         initWindow();
 
@@ -74,6 +77,12 @@ public class Accueil extends JFrame implements ActionListener {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 fillInstance((String) list1.getSelectedValue());
+            }
+        });
+        listSolution.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                fillSolution((String) listSolution.getSelectedValue());
             }
         });
     }
@@ -111,6 +120,7 @@ public class Accueil extends JFrame implements ActionListener {
                 mainInstance.setVisible(false);
                 mainSolution.setVisible(true);
                 mainParametre.setVisible(false);
+                solutionInit();
                 break;
             case "Paramètres":
                 Instances.setBackground(Color.decode(backGrey));
@@ -132,7 +142,7 @@ public class Accueil extends JFrame implements ActionListener {
 
         DefaultListModel<String> model = new DefaultListModel<>();
         list1.setModel(model);
-        File f = new File(currentDirectory);
+        File f = new File(currentInstanceDirectory);
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File f, String name) {
@@ -152,12 +162,78 @@ public class Accueil extends JFrame implements ActionListener {
         fillInstance(null);
 
     }
+    private void solutionInit(){
+        String[] pathnames;
+
+        DefaultListModel<String> model = new DefaultListModel<>();
+        listSolution.setModel(model);
+        File f = new File(currentSolutionDirectory);
+        FilenameFilter filter = new FilenameFilter() {
+            @Override
+            public boolean accept(File f, String name) {
+                return name.endsWith(".txt");
+            }
+        };
+        pathnames = f.list();
+
+        listSolution.removeAll();
+        if (pathnames!= null){
+            for (String fileName: pathnames) {
+                System.out.println(fileName);
+                model.addElement(fileName);
+
+            }
+        }
+        //fillInstance(null);
+    }
     private void fillInstance(String instanceName){
         if (instanceName!=null) {
             InstanceReader reader;
             Instance instance;
             try {
-                reader = new InstanceReader(currentDirectory + "/" + instanceName);
+                reader = new InstanceReader(currentInstanceDirectory + "/" + instanceName);
+                instance = reader.readInstance();
+            } catch (ReaderException e) {
+                return;
+            }
+            instanceNameLabel.setText(instance.getName());
+            instanceCapacity.setText(String.valueOf(instance.getTruckCapacity()));
+            instanceDataset.setText(instance.getDataset());
+            instanceDays.setText(String.valueOf(instance.getNbDay()));
+            instanceMaxDist.setText(String.valueOf(instance.getDistMaxTruck()));
+            instanceTechCost.setText(String.valueOf(instance.getTechCost()));
+            instanceTechDayCost.setText(String.valueOf(instance.getTechDayCost()));
+            instanceTechDistCost.setText(String.valueOf(instance.getTechDistCost()));
+            instanceTruckCost.setText(String.valueOf(instance.getTruckCost()));
+            instanceTruckDistCost.setText(String.valueOf(instance.getTruckDistCost()));
+            instanceTruckDayCost.setText(String.valueOf(instance.getTruckDayCost()));
+            instanceNbMachines.setText(String.valueOf(instance.getMachines().size()));
+            instanceNbRequest.setText(String.valueOf(instance.getClients().size()));
+            instanceNbTech.setText(String.valueOf(instance.getTechnicians().size()));
+        }else{
+            instanceNameLabel.setText("Nom d'instance");
+            instanceCapacity.setText("");
+            instanceDataset.setText("");
+            instanceDays.setText("");
+            instanceMaxDist.setText("");
+            instanceTechCost.setText("");
+            instanceTechDayCost.setText("");
+            instanceTechDistCost.setText("");
+            instanceTruckCost.setText("");
+            instanceTruckDistCost.setText("");
+            instanceTruckDayCost.setText("");
+            instanceNbMachines.setText("");
+            instanceNbRequest.setText("");
+            instanceNbTech.setText("");
+        }
+
+    }
+    private void fillSolution(String solutionName){
+        /**if (instanceName!=null) {
+            InstanceReader reader;
+            Instance instance;
+            try {
+                reader = new InstanceReader(currentInstanceDirectory + "/" + instanceName);
                 instance = reader.readInstance();
             } catch (ReaderException e) {
                 return;
@@ -195,7 +271,7 @@ public class Accueil extends JFrame implements ActionListener {
 
     }
     public static void main(String[] args) {
-        Accueil accueil = new Accueil();
+        Accueil accueil = new Accueil();*/
     }
 
 
