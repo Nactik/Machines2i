@@ -49,10 +49,10 @@ public class Technicien {
     public boolean isAvailable(Demande demand, int day){
         if(demand == null || day < 0) return false;
         TourneeTechnicien t = this.tourneePerDay.get(day);
-        //TODO : fonctionne que pour une insertion a la fin
         boolean needRest = false;
         if(t == null)
             needRest = this.doesNeedRest(day); //on check car il n'a jamais trvaillé le joir la
+        //TODO : fonctionne que pour une insertion a la fin
         return canHandleDemand(t, demand) && !needRest;
     }
 

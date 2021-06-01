@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Solution {
     private Instance instance;
@@ -192,9 +193,22 @@ public class Solution {
         }
     }
 
+    /**
+     * Retourne le nombre max de camions différents max tout les jours
+     * @return le nombre max
+     */
     private int getMaxTourneeTruck(){
         return this.days.values().stream()
                 .filter(l -> l.getFirst() instanceof TourneeCamion)
+                .mapToInt(List::size).max().getAsInt();
+    }
+    /**
+     * Retourne le nombre max de techniciens différents max tout les jours
+     * @return le nombre max
+     */
+    private int getMaxTourneeTech(){
+        return this.days.values().stream()
+                .filter(l -> l.getFirst() instanceof TourneeTechnicien)
                 .mapToInt(List::size).max().getAsInt();
     }
 
@@ -206,27 +220,48 @@ public class Solution {
     public boolean doFusion(FusionTournees infos){
         if(!infos.isMouvementAmeliorant() || !infos.doMouvementIfRealisable()) return false;
 
-        infos.getaFusionner().getDemandes().forEach(d -> {
-            System.out.println(d.getId());
-        });
-
         this.days.get(infos.getaFusionner().getDay()).remove(infos.getaFusionner());
 
-        //TODO : faire une fonction générique qui maj tout
-        this.truckDistance+= infos.getDeltaDist();
-        this.numberOfTruckDays --;
-        this.totalCost -= this.instance.getTruckDayCost();
-
-        if(this.getMaxTourneeTruck() < this.numberOfTruckUsed){
-            this.totalCost -= this.instance.getTruckCost();
-            this.numberOfTruckUsed --;
-        }
-        long distCost = (infos.getaFusionner() instanceof TourneeCamion) ? this.instance.getTruckDistCost() : this.instance.getTechDistCost();
-        this.totalCost +=  ((long)infos.getDeltaDist() * distCost);
+        this.majTotalCostFusion(infos);
 
         return true;
     }
 
+    /**
+     * Met a jour le cout total de la solution après une fusion
+     * @param infos les infos de l'opérateur de fusion
+     */
+    private void majTotalCostFusion(FusionTournees infos){
+        if(infos.getaFusionner() instanceof TourneeCamion){
+            this.truckDistance += infos.getDeltaDist();
+            this.numberOfTruckDays--;
+            this.totalCost -= this.instance.getTruckDayCost();
+
+            if(this.getMaxTourneeTruck() < this.numberOfTruckUsed){
+                this.totalCost -= this.instance.getTruckCost();
+                this.numberOfTruckUsed --;
+            }
+        } else {
+            // pour les tech
+            this.technicianDistance += infos.getDeltaDist();
+            this.numberOfTechnicianDays--;
+            this.totalCost -= this.instance.getTechDayCost();
+
+            if(this.getMaxTourneeTech() < this.numberOfTechnicianUsed){
+                this.totalCost -= this.instance.getTechCost();
+                this.numberOfTechnicianUsed --;
+            }
+
+            for(Demande d : infos.getaFusionner().getDemandes()){
+                int idleCost = this.evalIdleCost(d);
+                this.idleMachineCost += idleCost;
+                this.totalCost += idleCost;
+            }
+        }
+
+        long distCost = (infos.getaFusionner() instanceof TourneeCamion) ? this.instance.getTruckDistCost() : this.instance.getTechDistCost();
+        this.totalCost += ((long)infos.getDeltaDist() * distCost);
+    }
 
     /**
      * Récupère la meilleure fusion de tournée
@@ -259,14 +294,25 @@ public class Solution {
 
         FusionTournees best = new FusionTournees(), test = new FusionTournees();
 
-        for (Tournee t: this.days.get(mTournee.getDay())) {
-            //filtre sur les tournee du même type que mTournee
-            if(t.getClass().isInstance(mTournee)) {
-                if(!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()){
-                    test = new FusionTournees(mTournee, t);
-                }
-                if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
-                    best = test;
+        for (LinkedList<Tournee> l: this.days.values()) {
+            for(Tournee t : l){
+                //filtre sur les tournee du même type que mTournee
+                if(t.getClass().isInstance(mTournee)) {
+                    if (t instanceof TourneeCamion){
+                        if(!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()){
+                            test = new FusionTournees(mTournee, t);
+                        }
+                    } else {
+                        if(((TourneeTechnicien) mTournee).getTechnician().equals(((TourneeTechnicien) t).getTechnician().getId())) {
+                            if (!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()
+                                    && t.getDay() >= mTournee.getDay()) {
+                                test = new FusionTournees(mTournee, t);
+                            }
+                        }
+                    }
+                    if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
+                        best = test;
+                    }
                 }
             }
         }

@@ -32,20 +32,18 @@ public class ClarkeAndWright implements Solveur {
             }
         }
 
-        boolean fusion = true;
-        while(fusion){
-            FusionTournees ft = solution.getMeilleureFusion();
-            if(!ft.isMouvementRealisable() || !ft.isMouvementAmeliorant() || !solution.doFusion(ft))
-                fusion = false;
-
-        }
-
         for(Map.Entry<Integer, Client> entry : instance.getClients().entrySet()){
             for (Demande demande : entry.getValue().getDemandes()){
                 solution.addDemandTourneeTech(demande);
             }
         }
 
+        boolean fusion = true;
+        while(fusion){
+            FusionTournees ft = solution.getMeilleureFusion();
+            if(!ft.isMouvementRealisable() || !ft.isMouvementAmeliorant() || !solution.doFusion(ft))
+                fusion = false;
+        }
 
         return solution;
     }

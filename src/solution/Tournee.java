@@ -108,6 +108,9 @@ public abstract class Tournee {
 
         if(this instanceof TourneeCamion){
             ((TourneeCamion) this).majCap(infos.getaFusionner().getDemCap());
+        } else {
+            //TourneeTech donc penalité
+            infos.getaFusionner().getDemandes().forEach(d -> d.setInstallationDay(this.getDay()));
         }
 
         this.distance += infos.getaFusionner().getDistance() + infos.getDeltaDist();
