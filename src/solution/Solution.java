@@ -132,15 +132,6 @@ public class Solution {
         return true;
     }
 
-    private long getNumberOfTourneeTruckToday(int jour){
-        if(this.days.get(jour) == null)
-            return 0;
-
-        return this.days.get(jour).stream()
-                .filter(t -> t instanceof TourneeCamion)
-                .count();
-    }
-
     /**
      * Récupère un technicien disponible
      * @param demand la demande a assigné au technicien
@@ -172,6 +163,40 @@ public class Solution {
     }
 
     /**
+     * Récupère uniquement les tournées camions de la solution
+     * @return toutes les tournees camions
+     */
+    private List<Tournee> getAllTourneeTruck(){
+        List<Tournee> tourneeCamionList = new LinkedList<>();
+
+        for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
+            LinkedList<Tournee> tournees = entry.getValue();
+            for(Tournee t : tournees){
+                if(t instanceof TourneeCamion)
+                    tourneeCamionList.add(t);
+            }
+        }
+        return tourneeCamionList;
+    }
+
+    /**
+     * Récupère uniquement les tournées techniciens de la solution
+     * @return toutes les tournees techniciens
+     */
+    private List<Tournee> getAllTourneeTech(){
+        List<Tournee> tourneeTechList = new LinkedList<>();
+
+        for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
+            LinkedList<Tournee> tournees = entry.getValue();
+            for(Tournee t : tournees){
+                if(t instanceof TourneeTechnicien)
+                    tourneeTechList.add(t);
+            }
+        }
+        return tourneeTechList;
+    }
+
+    /**
      * Calcul le temps d'inactivité des machines d'une demande
      * @param demand la demande
      * @return le cout du temps d'inactivité
@@ -194,22 +219,120 @@ public class Solution {
     }
 
     /**
-     * Retourne le nombre max de camions différents max tout les jours
-     * @return le nombre max
+     * Retourne le nombre max de camions différents max dans tout les jours
+     * @return le nombre max de camion pour un jour
      */
     private int getMaxTourneeTruck(){
-        return this.days.values().stream()
-                .filter(l -> l.getFirst() instanceof TourneeCamion)
-                .mapToInt(List::size).max().getAsInt();
+        int current = 0, max = 0;
+        for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
+            LinkedList<Tournee> tournees = entry.getValue();
+            current = 0;
+            for(Tournee t : tournees){
+                if(t instanceof TourneeCamion)
+                    current++;
+            }
+            if(current > max)
+                max = current;
+        }
+        return max;
     }
+
     /**
-     * Retourne le nombre max de techniciens différents max tout les jours
-     * @return le nombre max
+     * Retourne le nombre max de techniciens différents max dans tout les jours
+     * @return le nombre max de tech pour un jour
      */
     private int getMaxTourneeTech(){
-        return this.days.values().stream()
-                .filter(l -> l.getFirst() instanceof TourneeTechnicien)
-                .mapToInt(List::size).max().getAsInt();
+        int current = 0, max = 0;
+        for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
+            LinkedList<Tournee> tournees = entry.getValue();
+            current = 0;
+            for(Tournee t : tournees){
+                if(t instanceof TourneeTechnicien)
+                    current++;
+            }
+            if(current > max)
+                max = current;
+        }
+        return max;
+    }
+
+    /**
+     * Récupère le jour de tournées pour un jour donné
+     * @param jour le jour
+     * @return le nombre de tournées
+     */
+    private long getNumberOfTourneeTruckToday(int jour){
+        if(this.days.get(jour) == null)
+            return 0;
+
+        return this.days.get(jour).stream()
+                .filter(t -> t instanceof TourneeCamion)
+                .count();
+    }
+
+    /**
+     * Récupère la meilleure fusion de tournée
+     * @return le meilleur opérateur de fusion
+     */
+    public FusionTournees getMeilleureFusion(TypeTournee typeTournee) {
+        if(this.days.isEmpty()) return new FusionTournees();
+
+        List<Tournee> tournees;
+        if(typeTournee == TypeTournee.TOURNEE_TRUCK){
+            tournees = this.getAllTourneeTruck();
+        } else {
+            tournees = this.getAllTourneeTech();
+        }
+
+        FusionTournees best = new FusionTournees(), test;
+
+        for (Tournee t: tournees) {
+            test = this.getMeilleureFusion(t);
+            if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
+                best = test;
+            }
+        }
+
+        return best;
+    }
+
+    /**
+     * Récupère le meilleur opérateur de tournée pour une tournée donnée
+     * @param mTournee la tournée
+     * @return le meilleur opérateur
+     */
+    private FusionTournees getMeilleureFusion(Tournee mTournee){
+        if(mTournee.getDemCap() == 0) return new FusionTournees();
+
+        List<Tournee> tournees;
+        FusionTournees best = new FusionTournees(), test = new FusionTournees();
+
+        if(mTournee instanceof TourneeCamion){
+            tournees = this.getAllTourneeTruck();
+            for(Tournee t : tournees){
+                if(!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()){
+                    test = new FusionTournees(mTournee, t);
+                }
+                if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
+                    best = test;
+                }
+            }
+        } else {
+            tournees = this.getAllTourneeTech();
+            for(Tournee t : tournees){
+                    if(((TourneeTechnicien) mTournee).getTechnician().getId() == (((TourneeTechnicien) t).getTechnician().getId())) {
+                        if (!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()
+                                && t.getDay() >= mTournee.getDay()) {
+                            test = new FusionTournees(mTournee, t);
+                        }
+                    }
+                }
+            if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
+                best = test;
+            }
+        }
+
+        return best;
     }
 
     /**
@@ -242,7 +365,6 @@ public class Solution {
                 this.numberOfTruckUsed --;
             }
         } else {
-            // pour les tech
             this.technicianDistance += infos.getDeltaDist();
             this.numberOfTechnicianDays--;
             this.totalCost -= this.instance.getTechDayCost();
@@ -261,63 +383,6 @@ public class Solution {
 
         long distCost = (infos.getaFusionner() instanceof TourneeCamion) ? this.instance.getTruckDistCost() : this.instance.getTechDistCost();
         this.totalCost += ((long)infos.getDeltaDist() * distCost);
-    }
-
-    /**
-     * Récupère la meilleure fusion de tournée
-     * @return le meilleur opérateur de fusion
-     */
-    public FusionTournees getMeilleureFusion() {
-        if(this.days.isEmpty()) return new FusionTournees();
-
-        FusionTournees best = new FusionTournees(), test;
-
-        for(List<Tournee> list : this.days.values()){
-            for (Tournee t: list) {
-                test = this.getMeilleureFusion(t);
-                if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
-                    best = test;
-                }
-            }
-        }
-
-        return best;
-    }
-
-    /**
-     * Récupère le meilleur opérateur de tournée pour une tournée donnée
-     * @param mTournee la tournée
-     * @return le meilleur opérateur
-     */
-    private FusionTournees getMeilleureFusion(Tournee mTournee){
-        if(mTournee.getDemCap() == 0) return new FusionTournees();
-
-        FusionTournees best = new FusionTournees(), test = new FusionTournees();
-
-        for (LinkedList<Tournee> l: this.days.values()) {
-            for(Tournee t : l){
-                //filtre sur les tournee du même type que mTournee
-                if(t.getClass().isInstance(mTournee)) {
-                    if (t instanceof TourneeCamion){
-                        if(!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()){
-                            test = new FusionTournees(mTournee, t);
-                        }
-                    } else {
-                        if(((TourneeTechnicien) mTournee).getTechnician().equals(((TourneeTechnicien) t).getTechnician().getId())) {
-                            if (!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()
-                                    && t.getDay() >= mTournee.getDay()) {
-                                test = new FusionTournees(mTournee, t);
-                            }
-                        }
-                    }
-                    if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
-                        best = test;
-                    }
-                }
-            }
-        }
-
-        return best;
     }
 
     /**
@@ -483,7 +548,6 @@ public class Solution {
      * Vérifie le cout total de la solution
      * @return la vérification du cout total de la solution
      */
-
     private long checkTotalCost(){
         long totalCost = 0;
         totalCost += this.checkTruckDistance()* this.instance.getTruckDistCost();

@@ -155,6 +155,11 @@ public class TourneeCamion extends Tournee{
     }
 
     @Override
+    public Point getStartingPoint(){
+        return this.entrepot;
+    };
+
+    @Override
     public String toString() {
         return "TourneeCamion{" +
                 "demandes=" + demandes +

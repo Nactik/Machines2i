@@ -8,6 +8,7 @@ import io.SolutionWriter;
 import io.exception.ReaderException;
 import operateur.FusionTournees;
 import solution.Solution;
+import solution.TypeTournee;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
@@ -25,11 +26,18 @@ public class ClarkeAndWright implements Solveur {
     @Override
     public Solution solve(Instance instance) {
         Solution solution  = new Solution(instance);
+        boolean fusion = true;
 
         for(Map.Entry<Integer, Client> entry : instance.getClients().entrySet()){
             for (Demande demande : entry.getValue().getDemandes()){
                 solution.addDemandNewTourneeTruck(demande);
             }
+        }
+
+        while(fusion){
+            FusionTournees ft = solution.getMeilleureFusion(TypeTournee.TOURNEE_TRUCK);
+            if(!ft.isMouvementRealisable() || !ft.isMouvementAmeliorant() || !solution.doFusion(ft))
+                fusion = false;
         }
 
         for(Map.Entry<Integer, Client> entry : instance.getClients().entrySet()){
@@ -38,9 +46,9 @@ public class ClarkeAndWright implements Solveur {
             }
         }
 
-        boolean fusion = true;
+        fusion = true;
         while(fusion){
-            FusionTournees ft = solution.getMeilleureFusion();
+            FusionTournees ft = solution.getMeilleureFusion(TypeTournee.TOURNEE_TECH);
             if(!ft.isMouvementRealisable() || !ft.isMouvementAmeliorant() || !solution.doFusion(ft))
                 fusion = false;
         }

@@ -102,6 +102,11 @@ public abstract class Tournee {
     }
 
 
+    /**
+     * Réalise la fusion de deux tournées
+     * @param infos les infos de la tournées a fusionner
+     * @return true si ok, false sinon
+     */
     public boolean doFusion(FusionTournees infos){
         if(infos == null) return false;
         this.demandes.addAll(infos.getaFusionner().getDemandes());
@@ -109,7 +114,7 @@ public abstract class Tournee {
         if(this instanceof TourneeCamion){
             ((TourneeCamion) this).majCap(infos.getaFusionner().getDemCap());
         } else {
-            //TourneeTech donc penalité
+            //TourneeTech donc maj les jours d'installation des demandes
             infos.getaFusionner().getDemandes().forEach(d -> d.setInstallationDay(this.getDay()));
         }
 
@@ -118,11 +123,16 @@ public abstract class Tournee {
         return check();
     }
 
+    /**
+     * Donne le delta distance après une potientielle fusion
+     * @param aFusionner les infos de la tournée a fusionner
+     * @return true si ok, false sinon
+     */
     public int deltaDistFusion(Tournee aFusionner){
         Point first = aFusionner.getCurrent(0);
         Point last = this.getCurrent(this.demandes.size()-1);
 
-        int deltaDistFusion =  -last.getDistTo(this.entrepot) + last.getDistTo(first) - aFusionner.entrepot.getDistTo(first);
+        int deltaDistFusion =  -last.getDistTo(this.getStartingPoint()) + last.getDistTo(first) - aFusionner.getStartingPoint().getDistTo(first);
 
         if(this.distance + deltaDistFusion + aFusionner.getDistance() > this.getMaxDist())
             return Integer.MAX_VALUE;
@@ -153,6 +163,8 @@ public abstract class Tournee {
     public abstract int getDemCap();
 
     public abstract int getMaxDist();
+
+    public abstract Point getStartingPoint();
 
     public abstract boolean check();
 }
