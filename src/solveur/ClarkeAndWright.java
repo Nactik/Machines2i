@@ -46,12 +46,12 @@ public class ClarkeAndWright implements Solveur {
             }
         }
 
-        fusion = true;
-        while(fusion){
-            FusionTournees ft = solution.getMeilleureFusion(TypeTournee.TOURNEE_TECH);
-            if(!ft.isMouvementRealisable() || !ft.isMouvementAmeliorant() || !solution.doFusion(ft))
-                fusion = false;
-        }
+//        fusion = true;
+//        while(fusion){
+//            FusionTournees ft = solution.getMeilleureFusion(TypeTournee.TOURNEE_TECH);
+//            if(!ft.isMouvementRealisable() || !ft.isMouvementAmeliorant() || !solution.doFusion(ft))
+//                fusion = false;
+//        }
 
         return solution;
     }
@@ -60,7 +60,7 @@ public class ClarkeAndWright implements Solveur {
         InstanceReader reader;
         try {
             //reader = new InstanceReader("exemple/testInstance.txt");
-            reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_05_easy.txt");
+            reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_11_easy.txt");
             Instance instance =  reader.readInstance();
             ClarkeAndWright caw = new ClarkeAndWright();
             System.out.println(caw.getNom());

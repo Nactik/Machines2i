@@ -87,7 +87,7 @@ public class Solution {
         int idleCost;
         if(demand == null) return false;
 
-        int deliveryDay = demand.getFirstDay();
+        int deliveryDay = demand.getDeliveryDay();
         int installationDay = deliveryDay+1; //on installe le jour suivant
 
         //récupère un tech dispo
@@ -310,7 +310,8 @@ public class Solution {
         if(mTournee instanceof TourneeCamion){
             tournees = this.getAllTourneeTruck();
             for(Tournee t : tournees){
-                if(!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()){
+                if(!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()
+                   && mTournee.getDay() <= this.getMinLastDay(t.getDemandes()) && mTournee.getDay() >= this.getMaxFirstDay(t.getDemandes())){
                     test = new FusionTournees(mTournee, t);
                 }
                 if ((!best.isMouvementRealisable() && test.isMouvementRealisable()) || test.isMeilleur(best)) {
@@ -322,7 +323,7 @@ public class Solution {
             for(Tournee t : tournees){
                     if(((TourneeTechnicien) mTournee).getTechnician().getId() == (((TourneeTechnicien) t).getTechnician().getId())) {
                         if (!mTournee.equals(t) && t.getMaxDemCap() != 0 && mTournee.getDemCap() + t.getDemCap() <= mTournee.getMaxDemCap()
-                                && t.getDay() >= mTournee.getDay()) {
+                                && t.getDay() <= mTournee.getDay()) {
                             test = new FusionTournees(mTournee, t);
                         }
                     }
@@ -333,6 +334,40 @@ public class Solution {
         }
 
         return best;
+    }
+
+    /**
+     * Récupère le dernier jour minimum des demandes
+     * @param demandes la liste de demande
+     * @return le dernier jour minimum
+     */
+    private int getMinLastDay(List<Demande> demandes){
+        int minDay = Integer.MAX_VALUE;
+
+        for(Demande demande : demandes){
+            if(demande.getLastDay() < minDay){
+                minDay = demande.getLastDay();
+            }
+        }
+
+        return minDay;
+    }
+
+    /**
+     * Récupère le premier jour max des demandes
+     * @param demandes la liste de demande
+     * @return le premier jour max
+     */
+    private int getMaxFirstDay(List<Demande> demandes){
+        int maxDay = 0;
+
+        for(Demande demande : demandes){
+            if(demande.getFirstDay() > maxDay){
+                maxDay = demande.getFirstDay();
+            }
+        }
+
+        return maxDay;
     }
 
     /**
@@ -397,22 +432,38 @@ public class Solution {
                     return false;
             }
         }
-        if(this.checkTruckDistance() != this.truckDistance)
-           return false;
-        if(this.checkTechnicianDistance() != this.technicianDistance)
+        if(this.checkTruckDistance() != this.truckDistance){
+            System.out.println("Erreur TruckDistance solution");
             return false;
-        if(this.checkIdleCost() != this.idleMachineCost)
+        }
+        if(this.checkTechnicianDistance() != this.technicianDistance){
+            System.out.println("Erreur TechnicianDistance solution");
             return false;
-        if(this.checkNbTechUsed() != this.numberOfTechnicianUsed)
+        }
+        if(this.checkIdleCost() != this.idleMachineCost){
+            System.out.println("Erreur idleMachineCost solution");
             return false;
-        if(this.checkNbTechDays() != this.numberOfTechnicianDays)
+        }
+        if(this.checkNbTechUsed() != this.numberOfTechnicianUsed){
+            System.out.println("Erreur nbOfTechnicianUsed solution");
             return false;
-        if(this.checkNbTruckUsed() != this.numberOfTruckUsed)
+        }
+        if(this.checkNbTechDays() != this.numberOfTechnicianDays){
+            System.out.println("Erreur nbOfTechnicianDays solution");
             return false;
-        if(this.checkNbTruckDays() != this.numberOfTruckDays)
+        }
+        if(this.checkNbTruckUsed() != this.numberOfTruckUsed){
+            System.out.println("Erreur nbOfTruckUsed solution");
             return false;
-        if(this.checkTotalCost() != this.totalCost)
+        }
+        if(this.checkNbTruckDays() != this.numberOfTruckDays){
+            System.out.println("Erreur nbOfTruckDays solution");
             return false;
+        }
+        if(this.checkTotalCost() != this.totalCost){
+            System.out.println("Erreur totalCost solution");
+            return false;
+        }
 
         return true;
     }
@@ -603,7 +654,7 @@ public class Solution {
     @Override
     public String toString() {
         String string = "Solution{" +
-                "\ninstance: " + instance +
+              //  "\ninstance: " + instance +
                 ",\n\ttruckDistance: " + truckDistance +
                 ",\n\tnumberOfTruckDays: " + numberOfTruckDays +
                 ",\n\tnumberOfTruckUsed: " + numberOfTruckUsed +
@@ -611,11 +662,11 @@ public class Solution {
                 ",\n\tnumberOfTechnicianDays: " + numberOfTechnicianDays +
                 ",\n\tnumberOfTechnicianUsed: " + numberOfTechnicianUsed +
                 ",\n\tidleMachineCost: " + idleMachineCost +
-                ",\n\ttotalCost: " + totalCost +
-                "\n\tdays: ";
-        for (Map.Entry<Integer, LinkedList<Tournee>> entry : days.entrySet()) {
-            string += "\n\t\t day : " + entry.getKey() + " = " + entry.getValue().toString();
-        }
+                ",\n\ttotalCost: " + totalCost;
+//                "\n\tdays: ";
+//        for (Map.Entry<Integer, LinkedList<Tournee>> entry : days.entrySet()) {
+//            string += "\n\t\t day : " + entry.getKey() + " = " + entry.getValue().toString();
+//        }
         string += '}';
         return string;
     }

@@ -109,15 +109,16 @@ public abstract class Tournee {
      */
     public boolean doFusion(FusionTournees infos){
         if(infos == null) return false;
-        this.demandes.addAll(infos.getaFusionner().getDemandes());
 
         if(this instanceof TourneeCamion){
             ((TourneeCamion) this).majCap(infos.getaFusionner().getDemCap());
+            infos.getaFusionner().getDemandes().forEach(d -> d.setDeliveryDay(this.getDay()));
         } else {
             //TourneeTech donc maj les jours d'installation des demandes
             infos.getaFusionner().getDemandes().forEach(d -> d.setInstallationDay(this.getDay()));
         }
 
+        this.demandes.addAll(infos.getaFusionner().getDemandes());
         this.distance += infos.getaFusionner().getDistance() + infos.getDeltaDist();
 
         return check();
