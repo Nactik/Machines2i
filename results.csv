@@ -1,0 +1,27 @@
+;Triviale;;;ClarkeAndWright;;
+;cout;tps(ms);valide ?;cout;tps(ms);valide ?
+Instance1easy;5 562 282 130;13;true;3 608 309 060;156;false
+Instance2easy;20 485 909 600;11;true;11 669 344 900;257;false
+Instance3easy;420 620 610;13;true;221 172 680;751;false
+Instance4easy;596 854 100;6;true;316 134 700;1 211;false
+Instance5easy;23 892 306 800;9;true;10 623 791 100;1 848;false
+Instance6easy;49 967 126 180;7;true;34 54 395 500;3 467;false
+Instance7easy;78 786 770;0;true;48 464 510;17;false
+Instance8easy;194 888 560;2;true;122 596 830;124;false
+Instance9easy;125 706 580;3;true;56 613 260;393;false
+Instance11easy;165 142 460;4;true;109 736 700;1 231;false
+Instance12easy;47 19 845 000;6;true;26 132 937 900;4 206;false
+Instance13easy;973 219 110;0;true;630 299 080;42;false
+Instance14easy;997 963 660;2;true;286 200 950;103;false
+Instance15easy;2 754 171 180;4;true;1 860 7 120;355;false
+Instance16easy;13 122 680 350;2;true;9 115 170 180;998;false
+Instance17easy;4 495 33 500;4;true;3 71 484 050;1 673;false
+Instance18easy;26 660 737 000;8;true;14 633 57 000;2 849;false
+Instance19easy;24 43 480;1;true;17 727 840;9;false
+Instance21easy;7 376 454 910;1;true;5 145 330 030;613;false
+Instance22easy;1 317 169 800;3;true;905 243 250;1 048;false
+Instance23easy;130 833 780;6;true;80 353 500;1 545;false
+Instance24easy;47 51 060;7;true;21 7 190;5 316;false
+Instance25easy;477 589 000;1;true;183 777 500;14;false
+
+SOMME;206 886 415 620;113;true;122 913 154 830;28 226;false
