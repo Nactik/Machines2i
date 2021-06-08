@@ -46,6 +46,24 @@ public class Instance {
         this.machines = machines;
     }
 
+    public Instance(Instance i){
+        this.dataset = i.dataset;
+        this.name = i.name;
+        this.nbDay = i.nbDay;
+        this.truckCapacity = i.truckCapacity;
+        this.distMaxTruck = i.distMaxTruck;
+        this.truckDistCost = i.truckDistCost;
+        this.truckDayCost = i.truckDayCost;
+        this.truckCost = i.truckCost;
+        this.techDayCost = i.techDayCost;
+        this.techDistCost = i.techDistCost;
+        this.techCost = i.techCost;
+        this.entrepot = i.entrepot;
+        this.clients = new LinkedHashMap<>();
+        this.technicians = new LinkedHashMap<>();
+        this.machines = i.machines;
+    }
+
     /**
      * Ajoute un client à l'instance
      * @param clientToAdd le client a traiter
