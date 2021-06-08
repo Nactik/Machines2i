@@ -50,8 +50,13 @@ public class Technicien {
         TourneeTechnicien t = this.tourneePerDay.get(day);
         //TODO : fonctionne que pour une insertion a la fin
         //TODO : vérifier les jours de repos
-        //if(t == null) this.needRest(day); //on check car il n'a jamais trvaillé le joir la
-        return canHandleDemand(t, demand);
+
+        if(t != null)
+            return this.canHandleDemand(t, demand);
+        //TODO : moche et a changer, mais gère le cas ou on crée une nouvelle tournée, et que la distance est directement trop élevée...
+        else if(this.domicile.getDistTo(demand.getClient()) + demand.getClient().getDistTo(this.getDomicile()) > this.maxDistance)
+            return false;
+        return true;
     }
 
     /**
@@ -61,40 +66,25 @@ public class Technicien {
      * @return true si dispo, false sinon
      */
     private boolean canHandleDemand(TourneeTechnicien tournee, Demande demand){
-        if(tournee == null) //cas ou la demande est directement trop élevé
-            return !(this.domicile.getDistTo(demand.getClient()) + demand.getClient().getDistTo(this.getDomicile()) > this.maxDistance);
-        else{
-            if(tournee.getDemandes().size() + 1 > this.maxDemand)
-                return false;
 
-            //TODO : fonctionne que pour une insertion a la fin
-            if(tournee.getDistance() + tournee.deltaDistInsertion(tournee.getDemandes().size(), demand) > this.maxDistance)
-                return false;
-        }
+        int nbMachinesTotal = 0;
+
+        if(tournee.getDemandes().size() + 1 > this.maxDemand)
+            return false;
+
+//        for(Demande d : tournee.getDemandes()){
+//            nbMachinesTotal += d.getNbMachines();
+//        }
+//
+//        if(nbMachinesTotal + demand.getNbMachines() > this.maxDemand)
+//            return false;
+
+        //TODO : fonctionne que pour une insertion a la fin
+        if(tournee.getDistance() + tournee.deltaDistInsertion(tournee.getDemandes().size(), demand) > this.maxDistance)
+            return false;
 
         return true;
     }
-
-    /**
-     * Permet de savoir si le technicien a besoin de repos ou non
-     * @return true si il a besoin de repos, false sinon
-     */
-    /*private boolean needRest(int installationDay){
-        int consecutiveDays = 0;
-        Set<Integer> days = this.tourneePerDay.keySet();
-
-        //si il n'y a pas de jours dans sa liste, il n'a pas besoin de repos
-        if(days.isEmpty())
-            return false;
-
-        while()
-
-        int startingDay = day
-
-        if()
-
-        return false;
-    }**/
 
     /**
      * Permet de savoir si le technicien a déjà été utilisé dans sa vie (déjà employé)
