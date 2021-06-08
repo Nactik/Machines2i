@@ -18,16 +18,18 @@ import java.util.stream.Collectors;
 public class SolutionWriter {
 
     private Solution solution;
+    private String nameSolveur;
 
-    public SolutionWriter(Solution solution){
+    public SolutionWriter(Solution solution, String nameSolveur){
         this.solution = solution;
+        this.nameSolveur = nameSolveur;
     }
 
     /**
      * @return void pour l'instant
      */
     public void writeSolution() throws FileNotFoundException, UnsupportedEncodingException {
-        String name = "solution-" + solution.getInstance().getName();
+        String name = "Solution-" + solution.getInstance().getName()+"-"+this.nameSolveur;
         PrintWriter pw = new PrintWriter("solution/"+ name + ".txt","UTF-8");
 
         //Début de l'écriture

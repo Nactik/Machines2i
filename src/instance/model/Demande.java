@@ -27,6 +27,17 @@ public class Demande {
         this.installationDay = -1;
     }
 
+    public Demande(Demande d){
+        this.id = d.id;
+        this.idMachine = d.idMachine;
+        this.nbMachines = d.nbMachines;
+        this.firstDay = d.firstDay;
+        this.lastDay = d.lastDay;
+        this.client = d.client;
+        this.deliveryDay = d.getDeliveryDay();
+        this.installationDay = d.getFirstDay();
+    }
+
     public int getId() {
         return id;
     }
