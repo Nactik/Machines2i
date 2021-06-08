@@ -76,34 +76,6 @@ public class TourneeTechnicien extends Tournee {
     }
 
     @Override
-    public int getMaxDemCap() {
-        return this.technician.getMaxDemand();
-    }
-
-    @Override
-    public int getDemCap() {
-        return this.demandes.size();
-    }
-
-    public int getDistance(){
-        return distance;
-    }
-
-    public Technicien getTechnician() {
-        return technician;
-    }
-
-    @Override
-    public Point getStartingPoint(){
-        return this.getTechnician().getDomicile();
-    };
-
-    @Override
-    public int getMaxDist() {
-        return this.getTechnician().getMaxDistance();
-    }
-
-    @Override
     public String toString() {
         return "TourneeTechnicien{" +
                 "demandes=" + demandes +
@@ -112,5 +84,18 @@ public class TourneeTechnicien extends Tournee {
                 ", distance=" + distance +
                 ", technician=" + technician +
                 '}';
+    }
+
+    public int getDistance(){
+        return distance;
+    }
+
+    @Override
+    public int evalCost() {
+        return 0;
+    }
+
+    public Technicien getTechnician() {
+        return technician;
     }
 }
