@@ -6,14 +6,24 @@ import io.InstanceReader;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.FileChooserUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.UnsupportedEncodingException;
+import java.nio.channels.FileChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import io.InstanceReader;
+import io.SolutionReader;
+import io.SolutionWriter;
 import io.exception.ReaderException;
+import solution.Solution;
+import solveur.Triviale;
 
 public class Accueil extends JFrame implements ActionListener {
     private JPanel panel1;
@@ -33,11 +43,11 @@ public class Accueil extends JFrame implements ActionListener {
     private JScrollPane listPanel;
     private JList list1;
     private JLabel instanceNameLabel;
-    private JButton button1;
+    private JButton buttonResoudre;
     private JPanel affichageSolution;
     private JPanel affichageInstance;
     private JPanel buttonRésoudre;
-    private JButton button2;
+    private JButton instanceSolutionShow;
     private JPanel afficherSolution;
     private JLabel instanceDataset;
     private JLabel instanceDays;
@@ -53,6 +63,27 @@ public class Accueil extends JFrame implements ActionListener {
     private JLabel instanceNbMachines;
     private JLabel instanceNbTech;
     private JList listSolution;
+    private JLabel solutionDataset;
+    private JLabel solutionTruckDist;
+    private JLabel solutionNumberOfTruckDays;
+    private JLabel solutionNumberOfTruckUsed;
+    private JLabel solutionTechDist;
+    private JLabel solutionNumberOfTechDays;
+    private JLabel solutionNumberOfTechUsed;
+    private JLabel solutionIdle;
+    private JLabel solutionTotalCost;
+    private JLabel solutionNameLabel;
+    private JLabel solutionSolveur;
+    private JLabel instanceSolutionName;
+    private JLabel instanceSolutionCost;
+    private JLabel instanceSolutionTech;
+    private JLabel instanceSolutionTruck;
+    private JLabel instanceSolutionMethode;
+    private JLabel LabelBestSolution;
+    private JButton choisirDossierInstanceButton;
+    private JButton choisirDossierSolutionButton;
+    private JLabel textPaneInstanceDirectory;
+    private JLabel textPaneSolutionDirectory;
     private String currentMenu;
 
     private final String backWhite = "#FFFFFF";
@@ -61,11 +92,15 @@ public class Accueil extends JFrame implements ActionListener {
 
     private String currentInstanceDirectory;
     private String currentSolutionDirectory;
+    private String currentSelectedInstance;
+    private String currentSelectedSolution;
 
     public Accueil() {
         currentMenu = "";
         currentInstanceDirectory = "instancesProg";
         currentSolutionDirectory = "solution";
+        currentSelectedInstance = "undefined";
+        currentSelectedSolution = "undefined";
 
         initWindow();
 
@@ -76,15 +111,21 @@ public class Accueil extends JFrame implements ActionListener {
         list1.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                fillInstance((String) list1.getSelectedValue());
+                currentSelectedInstance = (String) list1.getSelectedValue();
+                fillInstance(currentSelectedInstance);
             }
         });
         listSolution.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                fillSolution((String) listSolution.getSelectedValue());
+                currentSelectedSolution = (String) listSolution.getSelectedValue();
+                fillSolution(currentSelectedSolution);
             }
         });
+        buttonResoudre.addActionListener(this);
+        instanceSolutionShow.addActionListener(this);
+        choisirDossierSolutionButton.addActionListener(this);
+        choisirDossierInstanceButton.addActionListener(this);
     }
     private void initWindow(){
         this.setTitle("Machines2i");
@@ -130,6 +171,7 @@ public class Accueil extends JFrame implements ActionListener {
                 mainInstance.setVisible(false);
                 mainSolution.setVisible(false);
                 mainParametre.setVisible(true);
+                paramInit();
                 break;
             default:
                 break;
@@ -143,6 +185,7 @@ public class Accueil extends JFrame implements ActionListener {
         DefaultListModel<String> model = new DefaultListModel<>();
         list1.setModel(model);
         File f = new File(currentInstanceDirectory);
+        currentInstanceDirectory = f.getAbsolutePath();
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File f, String name) {
@@ -163,11 +206,12 @@ public class Accueil extends JFrame implements ActionListener {
 
     }
     private void solutionInit(){
+        String solutionNameFiller = null;
         String[] pathnames;
-
         DefaultListModel<String> model = new DefaultListModel<>();
         listSolution.setModel(model);
         File f = new File(currentSolutionDirectory);
+        currentSolutionDirectory = f.getAbsolutePath();
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File f, String name) {
@@ -184,9 +228,17 @@ public class Accueil extends JFrame implements ActionListener {
 
             }
         }
-        //fillInstance(null);
+        if(currentSelectedSolution != null && !currentSelectedSolution.isEmpty()){
+            int selected = model.indexOf(currentSelectedSolution);
+            listSolution.setSelectedIndex(selected);
+            solutionNameFiller = currentSelectedSolution;
+        }
+        fillSolution(solutionNameFiller);
     }
     private void fillInstance(String instanceName){
+        affichageSolution.setVisible(false);
+        afficherSolution.setVisible(false);
+        LabelBestSolution.setVisible(false);
         if (instanceName!=null) {
             InstanceReader reader;
             Instance instance;
@@ -228,57 +280,152 @@ public class Accueil extends JFrame implements ActionListener {
         }
 
     }
+    private void fillSolutionPreview(Solution solution,String methode) {
+        affichageSolution.setVisible(true);
+        afficherSolution.setVisible(true);
+        LabelBestSolution.setVisible(true);
+
+        instanceSolutionCost.setText(String.valueOf(solution.getTotalCost()));
+        instanceSolutionMethode.setText(methode);
+        instanceSolutionName.setText(solution.getInstance().getName());
+        instanceSolutionTech.setText(String.valueOf(solution.getNumberOfTechnicianUsed()));
+        instanceSolutionTruck.setText(String.valueOf(solution.getNumberOfTruckUsed()));
+
+    }
     private void fillSolution(String solutionName){
-        /**if (instanceName!=null) {
-            InstanceReader reader;
-            Instance instance;
+        System.out.println("this is in fill solution");
+        if (solutionName!=null) {
+            System.out.println("this is in fill solution's if");
+            SolutionReader reader;
+            Solution solution;
             try {
-                reader = new InstanceReader(currentInstanceDirectory + "/" + instanceName);
-                instance = reader.readInstance();
+                reader = new SolutionReader(currentSolutionDirectory + "/" + solutionName);
+                solution = reader.readSolution();
             } catch (ReaderException e) {
+                System.out.println("erreur");
                 return;
             }
-            instanceNameLabel.setText(instance.getName());
-            instanceCapacity.setText(String.valueOf(instance.getTruckCapacity()));
-            instanceDataset.setText(instance.getDataset());
-            instanceDays.setText(String.valueOf(instance.getNbDay()));
-            instanceMaxDist.setText(String.valueOf(instance.getDistMaxTruck()));
-            instanceTechCost.setText(String.valueOf(instance.getTechCost()));
-            instanceTechDayCost.setText(String.valueOf(instance.getTechDayCost()));
-            instanceTechDistCost.setText(String.valueOf(instance.getTechDistCost()));
-            instanceTruckCost.setText(String.valueOf(instance.getTruckCost()));
-            instanceTruckDistCost.setText(String.valueOf(instance.getTruckDistCost()));
-            instanceTruckDayCost.setText(String.valueOf(instance.getTruckDayCost()));
-            instanceNbMachines.setText(String.valueOf(instance.getMachines().size()));
-            instanceNbRequest.setText(String.valueOf(instance.getClients().size()));
-            instanceNbTech.setText(String.valueOf(instance.getTechnicians().size()));
+            String name = extractName(solutionName);
+            System.out.println(" okok "+solution.getTotalCost());
+            solutionNameLabel.setText("sol : "+solution.getInstance().getName());
+            solutionSolveur.setText(name);
+            solutionDataset.setText(solution.getInstance().getDataset());
+            solutionTruckDist.setText(String.valueOf(solution.getTruckDistance()));
+            solutionNumberOfTruckDays.setText(String.valueOf(solution.getNumberOfTruckDays()));
+            solutionNumberOfTruckUsed.setText(String.valueOf(solution.getNumberOfTruckUsed()));
+            solutionTechDist.setText(String.valueOf(solution.getTechnicianDistance()));
+            solutionNumberOfTechDays.setText(String.valueOf(solution.getNumberOfTechnicianDays()));
+            solutionNumberOfTechUsed.setText(String.valueOf(solution.getNumberOfTechnicianUsed()));
+            solutionIdle.setText(String.valueOf(solution.getIdleMachineCost()));
+            solutionTotalCost.setText(String.valueOf(solution.getTotalCost()));
         }else{
-            instanceNameLabel.setText("Nom d'instance");
-            instanceCapacity.setText("");
-            instanceDataset.setText("");
-            instanceDays.setText("");
-            instanceMaxDist.setText("");
-            instanceTechCost.setText("");
-            instanceTechDayCost.setText("");
-            instanceTechDistCost.setText("");
-            instanceTruckCost.setText("");
-            instanceTruckDistCost.setText("");
-            instanceTruckDayCost.setText("");
-            instanceNbMachines.setText("");
-            instanceNbRequest.setText("");
-            instanceNbTech.setText("");
+            solutionNameLabel.setText("Nom de solution");
+            solutionSolveur.setText("");
+            solutionDataset.setText("");
+            solutionTruckDist.setText("");
+            solutionNumberOfTruckDays.setText("");
+            solutionNumberOfTruckUsed.setText("");
+            solutionTechDist.setText("");
+            solutionNumberOfTechDays.setText("");
+            solutionNumberOfTechUsed.setText("");
+            solutionIdle.setText("");
+            solutionTotalCost.setText("");
         }
 
     }
+    private void paramInit(){
+        textPaneSolutionDirectory.setText(currentSolutionDirectory);
+        textPaneInstanceDirectory.setText(currentInstanceDirectory);
+    }
+    private String extractName(String solutionName) {
+        String solveurName = "undefined";
+        String[] solutionParts = solutionName.split("-");
+        if(solutionParts.length > 2){
+            solveurName = solutionParts[2];
+            solveurName = solveurName.replace(".txt", "");
+        }
+        return solveurName;
+    }
+
+    private void solveCurrentInstance() {
+        InstanceReader reader;
+        try {
+            //reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_01_easy.txt");
+            reader = new InstanceReader(currentInstanceDirectory + "/" + currentSelectedInstance);
+            Instance instance =  reader.readInstance();
+
+            Triviale triviale = new Triviale();
+            Solution solution = triviale.solve(instance);
+
+            SolutionWriter io = new SolutionWriter(solution);
+            io.writeSolution();
+            currentSelectedSolution = "solution-"+solution.getInstance().getName()+".txt";
+            //currentSelectedSolution = "solution-"+solution.getInstance().getName()+"-"+triviale.getNom();
+            fillSolutionPreview(solution,triviale.getNom());
+
+        } catch (ReaderException ex) {
+            Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void changeDirectory(String actionCommand) {
+        JFileChooser chooser;
+        String result;
+
+        chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new java.io.File("."));
+        chooser.setDialogTitle(actionCommand);
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        //
+        // disable the "All files" option.
+        //
+        chooser.setAcceptAllFileFilterUsed(false);
+        //
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            System.out.println("getSelectedFile() : "
+                    +  chooser.getSelectedFile());
+            result = chooser.getSelectedFile().getPath();
+            if (actionCommand.equals("Choisir dossier solution")){
+                textPaneSolutionDirectory.setText(result);
+                currentSolutionDirectory = result;
+            }else if(actionCommand.equals("Choisir dossier instance")){
+                textPaneInstanceDirectory.setText(result);
+                currentInstanceDirectory = result;
+            }
+        }
+        else {
+            System.out.println("No Selection ");
+        }
+    }
+
     public static void main(String[] args) {
-        Accueil accueil = new Accueil();*/
+        Accueil accueil = new Accueil();
     }
 
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().matches("Instances|Solutions|Paramètres")
-                && !currentMenu.equals(e.getActionCommand()))
+                && !currentMenu.equals(e.getActionCommand())){
+            currentSelectedSolution="";
+            currentSelectedInstance="";
             clickMenu(e.getActionCommand());
+        }
+        if (e.getActionCommand().equals("Résoudre")){
+            solveCurrentInstance();
+        }
+        if (e.getActionCommand().equals("Voir")){
+            clickMenu("Solutions");
+        }
+        if (e.getActionCommand().equals("Choisir dossier solution") || e.getActionCommand().equals("Choisir dossier instance")){
+            changeDirectory(e.getActionCommand());
+        }
+
     }
+
+
+
+
 }

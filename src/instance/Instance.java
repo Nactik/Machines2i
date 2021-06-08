@@ -27,6 +27,24 @@ public class Instance {
     private Map<Integer, Technicien> technicians;
     private List<Machine> machines;
 
+    public  Instance(String dataset,String name){
+        this.dataset = dataset;
+        this.name = name;
+        this.nbDay = -1;
+        this.truckCapacity = -1;
+        this.distMaxTruck = -1;
+        this.truckDistCost = -1;
+        this.truckDayCost = -1;
+        this.truckCost = -1;
+        this.techDayCost = -1;
+        this.techDistCost = -1;
+        this.techCost = -1;
+        this.entrepot = null;
+        this.clients = null;
+        this.technicians = null;
+        this.machines = null;
+    }
+
     public Instance(String dataset,String name, int nbDay, int truckCapacity, int distMaxTruck, int truckDistCost,
                     int truckDayCost, int truckCost, int techDayCost, int techDistCost, int techCost, Entrepot entrepot, List<Machine> machines) {
         this.dataset = dataset;

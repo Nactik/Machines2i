@@ -41,6 +41,18 @@ public class Solution {
         this.instance = instance;
     }
 
+    public Solution(Instance instance, int truckDistance, int numberOfTruckDays, int numberOfTruckUsed, int technicianDistance, int numberOfTechnicianDays, int numberOfTechnicianUsed, int idleMachineCost, int totalCost) {
+        this.instance = instance;
+        this.truckDistance = truckDistance;
+        this.numberOfTruckDays = numberOfTruckDays;
+        this.numberOfTruckUsed = numberOfTruckUsed;
+        this.technicianDistance = technicianDistance;
+        this.numberOfTechnicianDays = numberOfTechnicianDays;
+        this.numberOfTechnicianUsed = numberOfTechnicianUsed;
+        this.idleMachineCost = idleMachineCost;
+        this.totalCost = totalCost;
+    }
+
     public Solution(Solution solution){
         this.instance = solution.instance;
         this.truckDistance = solution.truckDistance;
