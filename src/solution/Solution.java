@@ -238,22 +238,21 @@ public class Solution {
     }
 
     /**
-     * Retourne le nombre max de techniciens différents max dans tout les jours
+     * Retourne le nombre max de techniciens différents max dans la solution
      * @return le nombre max de tech pour un jour
      */
-    private int getMaxTourneeTech(){
-        int current = 0, max = 0;
-        for(Map.Entry<Integer, LinkedList<Tournee>> entry : this.days.entrySet()){
-            LinkedList<Tournee> tournees = entry.getValue();
-            current = 0;
-            for(Tournee t : tournees){
-                if(t instanceof TourneeTechnicien)
-                    current++;
+    private int getMaxTech(){
+        LinkedList<Technicien> listeTech = new LinkedList<>();
+        for (LinkedList<Tournee> tournees : this.days.values()) {
+            for (Tournee t : tournees){
+                if(t instanceof TourneeTechnicien){
+                    if (!listeTech.contains(((TourneeTechnicien) t).getTechnician())){
+                        listeTech.add(((TourneeTechnicien) t).getTechnician());
+                    }
+                }
             }
-            if(current > max)
-                max = current;
         }
-        return max;
+        return listeTech.size();
     }
 
     /**
@@ -376,6 +375,14 @@ public class Solution {
      * @return true si ok, false sinon
      */
     public boolean doFusion(FusionTournees infos){
+        if(infos.getaFusionner() instanceof TourneeTechnicien && infos.isMouvementAmeliorant()){
+            for(Demande d : infos.getaFusionner().getDemandes()){
+                int idleCost = this.evalIdleCost(d);
+                this.idleMachineCost -= idleCost;
+                this.totalCost -= idleCost;
+            }
+        }
+
         if(!infos.isMouvementAmeliorant() || !infos.doMouvementIfRealisable()) return false;
 
         this.days.get(infos.getaFusionner().getDay()).remove(infos.getaFusionner());
@@ -404,7 +411,7 @@ public class Solution {
             this.numberOfTechnicianDays--;
             this.totalCost -= this.instance.getTechDayCost();
 
-            if(this.getMaxTourneeTech() < this.numberOfTechnicianUsed){
+            if(this.getMaxTech() < this.numberOfTechnicianUsed){
                 this.totalCost -= this.instance.getTechCost();
                 this.numberOfTechnicianUsed --;
             }
@@ -433,35 +440,35 @@ public class Solution {
             }
         }
         if(this.checkTruckDistance() != this.truckDistance){
-            System.out.println("Erreur TruckDistance solution");
+            System.out.println("Erreur TruckDistance solution\n");
             return false;
         }
         if(this.checkTechnicianDistance() != this.technicianDistance){
-            System.out.println("Erreur TechnicianDistance solution");
+            System.out.println("Erreur TechnicianDistance solution\n");
             return false;
         }
         if(this.checkIdleCost() != this.idleMachineCost){
-            System.out.println("Erreur idleMachineCost solution");
+            System.out.println("Erreur idleMachineCost solution\n");
             return false;
         }
         if(this.checkNbTechUsed() != this.numberOfTechnicianUsed){
-            System.out.println("Erreur nbOfTechnicianUsed solution");
+            System.out.println("Erreur nbOfTechnicianUsed solution\n");
             return false;
         }
         if(this.checkNbTechDays() != this.numberOfTechnicianDays){
-            System.out.println("Erreur nbOfTechnicianDays solution");
+            System.out.println("Erreur nbOfTechnicianDays solution\n");
             return false;
         }
         if(this.checkNbTruckUsed() != this.numberOfTruckUsed){
-            System.out.println("Erreur nbOfTruckUsed solution");
+            System.out.println("Erreur nbOfTruckUsed solution\n");
             return false;
         }
         if(this.checkNbTruckDays() != this.numberOfTruckDays){
-            System.out.println("Erreur nbOfTruckDays solution");
+            System.out.println("Erreur nbOfTruckDays solution\n");
             return false;
         }
         if(this.checkTotalCost() != this.totalCost){
-            System.out.println("Erreur totalCost solution");
+            System.out.println("Erreur totalCost solution\n");
             return false;
         }
 
@@ -601,7 +608,7 @@ public class Solution {
      */
     private long checkTotalCost(){
         long totalCost = 0;
-        totalCost += this.checkTruckDistance()* this.instance.getTruckDistCost();
+        totalCost += this.checkTruckDistance() * this.instance.getTruckDistCost();
         totalCost += this.checkTechnicianDistance() * this.instance.getTechDistCost();
         totalCost += this.checkNbTechUsed() * this.instance.getTechCost();
         totalCost += this.checkNbTruckUsed() * this.instance.getTruckCost();

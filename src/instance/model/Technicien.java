@@ -196,6 +196,10 @@ public class Technicien {
         return this.tourneePerDay.get(day);
     }
 
+    public Map<Integer, TourneeTechnicien> getTourneePerDay() {
+        return tourneePerDay;
+    }
+
     public int getMaxDemand() {
         return this.maxDemand;
     }

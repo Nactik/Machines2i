@@ -1,6 +1,7 @@
 package solution;
 
 import instance.model.Demande;
+import instance.model.Technicien;
 import instance.reseau.Client;
 import instance.reseau.Entrepot;
 import instance.reseau.Point;
@@ -116,6 +117,9 @@ public abstract class Tournee {
         } else {
             //TourneeTech donc maj les jours d'installation des demandes
             infos.getaFusionner().getDemandes().forEach(d -> d.setInstallationDay(this.getDay()));
+            int day = infos.getaFusionner().getDay();
+            Technicien technicien = ((TourneeTechnicien) infos.getaFusionner()).getTechnician();
+            technicien.getTourneePerDay().remove(day);
         }
 
         this.demandes.addAll(infos.getaFusionner().getDemandes());
