@@ -1,14 +1,14 @@
 package solution;
 
+import instance.Instance;
 import instance.model.Demande;
 import instance.reseau.Client;
 import instance.reseau.Entrepot;
 import instance.reseau.Point;
-import operateur.FusionTournees;
-import operateur.Operateur;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class Tournee {
 
@@ -18,7 +18,7 @@ public abstract class Tournee {
     protected int distance;
 
     public Tournee() {
-        this.demandes = new LinkedList<>();
+        this.demandes = new ArrayList<>();
     }
 
     public Tournee(Entrepot entrepot, int day){
@@ -101,46 +101,6 @@ public abstract class Tournee {
         return true;
     }
 
-
-    /**
-     * Réalise la fusion de deux tournées
-     * @param infos les infos de la tournées a fusionner
-     * @return true si ok, false sinon
-     */
-    public boolean doFusion(FusionTournees infos){
-        if(infos == null) return false;
-
-        if(this instanceof TourneeCamion){
-            ((TourneeCamion) this).majCap(infos.getaFusionner().getDemCap());
-            infos.getaFusionner().getDemandes().forEach(d -> d.setDeliveryDay(this.getDay()));
-        } else {
-            //TourneeTech donc maj les jours d'installation des demandes
-            infos.getaFusionner().getDemandes().forEach(d -> d.setInstallationDay(this.getDay()));
-        }
-
-        this.demandes.addAll(infos.getaFusionner().getDemandes());
-        this.distance += infos.getaFusionner().getDistance() + infos.getDeltaDist();
-
-        return check();
-    }
-
-    /**
-     * Donne le delta distance après une potientielle fusion
-     * @param aFusionner les infos de la tournée a fusionner
-     * @return true si ok, false sinon
-     */
-    public int deltaDistFusion(Tournee aFusionner){
-        Point first = aFusionner.getCurrent(0);
-        Point last = this.getCurrent(this.demandes.size()-1);
-
-        int deltaDistFusion =  -last.getDistTo(this.getStartingPoint()) + last.getDistTo(first) - aFusionner.getStartingPoint().getDistTo(first);
-
-        if(this.distance + deltaDistFusion + aFusionner.getDistance() > this.getMaxDist())
-            return Integer.MAX_VALUE;
-
-        return deltaDistFusion;
-    }
-
     public List<Demande> getDemandes() {
         return demandes;
     }
@@ -149,23 +109,13 @@ public abstract class Tournee {
         return distance;
     }
 
-    public int getDay() {
-        return day;
-    }
+    public abstract int evalCost();
 
     protected abstract Point getPrec(int position);
 
     protected abstract Point getCurrent(int position);
 
     public abstract boolean addDemand(Demande demand);
-
-    public abstract int getMaxDemCap();
-
-    public abstract int getDemCap();
-
-    public abstract int getMaxDist();
-
-    public abstract Point getStartingPoint();
 
     public abstract boolean check();
 }

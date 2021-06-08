@@ -5,7 +5,6 @@ import solution.TourneeTechnicien;
 
 
 import java.util.*;
-import java.util.stream.Collector;
 
 public class Technicien {
     private int id;
@@ -49,11 +48,14 @@ public class Technicien {
     public boolean isAvailable(Demande demand, int day){
         if(demand == null || day < 0) return false;
         TourneeTechnicien t = this.tourneePerDay.get(day);
-        boolean needRest = false;
-        if(t == null)
-            needRest = this.doesNeedRest(day); //on check car il n'a jamais trvaillé le joir la
         //TODO : fonctionne que pour une insertion a la fin
-        return canHandleDemand(t, demand) && !needRest;
+        //TODO : vérifier les jours de repos
+        if(t != null)
+            return this.canHandleDemand(t, demand);
+        //TODO : moche et a changer, mais gère le cas ou on crée une nouvelle tournée, et que la distance est directement trop élevée...
+        else if(this.domicile.getDistTo(demand.getClient()) + demand.getClient().getDistTo(this.getDomicile()) > this.maxDistance)
+            return false;
+        return true;
     }
 
     /**
@@ -63,78 +65,23 @@ public class Technicien {
      * @return true si dispo, false sinon
      */
     private boolean canHandleDemand(TourneeTechnicien tournee, Demande demand){
-        if(tournee == null) //cas ou la demande est directement trop élevé
-            return !(this.domicile.getDistTo(demand.getClient()) + demand.getClient().getDistTo(this.getDomicile()) > this.maxDistance);
-        else{
-            if(tournee.getDemandes().size() + 1 > this.maxDemand)
-                return false;
+        int nbMachinesTotal = 0;
 
-            //TODO : fonctionne que pour une insertion a la fin
-            if(tournee.getDistance() + tournee.deltaDistInsertion(tournee.getDemandes().size(), demand) > this.maxDistance)
-                return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Permet de savoir si le technicien a besoin de repos ou non
-     * @return true si il a besoin de repos, false sinon
-     */
-    private boolean doesNeedRest(int installationDay){
-        Set<Integer> daysWorkedKey = this.tourneePerDay.keySet(); //on récupère les jours travaillés
-        LinkedList<Integer> daysWorked = new LinkedList<>(daysWorkedKey); //stockage dans list pour acceder
-
-        daysWorked.add(installationDay); //on ajoute le possible nouveau jour pour test
-        Collections.sort(daysWorked); //on la trie (important pour le formattage
-
-        //on récupère les jours travaillés ou non, notés 1 et 0
-        LinkedList<Integer> techPlanning = this.getPlannigFromDaysWorked(daysWorked);
-
-        if(techPlanning.size() <= 5)
+        if(tournee.getDemandes().size() + 1 > this.maxDemand)
             return false;
 
+//        for(Demande d : tournee.getDemandes()){
+//            nbMachinesTotal += d.getNbMachines();
+//        }
+//
+//        if(nbMachinesTotal + demand.getNbMachines() > this.maxDemand)
+//            return false;
 
-        for(int i=0; i<techPlanning.size()-5; i++){
-            int consecutiveDaysWorked = 0, checkRestDays = 0;
+        //TODO : fonctionne que pour une insertion a la fin
+        if(tournee.getDistance() + tournee.deltaDistInsertion(tournee.getDemandes().size(), demand) > this.maxDistance)
+            return false;
 
-            for(int j=i; j<i+5; j++){
-                consecutiveDaysWorked += techPlanning.get(j);
-            }
-
-            if(consecutiveDaysWorked == 5){
-                for(int j=i+5; j<i+7; j++){
-                    if(j >= techPlanning.size() || techPlanning.get(j) == 0)
-                        checkRestDays++;
-                }
-            }
-
-            if(consecutiveDaysWorked == 5 && checkRestDays != 2)
-                return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Formate une liste de numéros jours travaillés en une liste de 0 et de 1 en fonction des index
-     * @param daysWorkedSorted  liste de numéros jours travaillés
-     * @return liste de 0 et de 1 en fonction des index
-     */
-    private LinkedList<Integer> getPlannigFromDaysWorked(LinkedList<Integer> daysWorkedSorted){
-        LinkedList<Integer> formatedDaysWorkedList = new LinkedList<>();
-        int maxNumDayWorked = daysWorkedSorted.getLast(); //On récupère la dernière valeur, qui doit etre le jour max travaillé (logiquement)
-
-        //On crée une liste. L'index correspond au numéro du jour, la valeur correspnd a si il est travaillé ou non
-        //1 travaillé, 0 pas travaillé
-        for(int i = 1; i <= maxNumDayWorked; i++){
-            if(daysWorkedSorted.contains(i))
-                formatedDaysWorkedList.add(1);
-            else
-                formatedDaysWorkedList.add(0);
-        }
-
-        return formatedDaysWorkedList;
+        return true;
     }
 
     /**
@@ -196,14 +143,6 @@ public class Technicien {
         return this.tourneePerDay.get(day);
     }
 
-    public int getMaxDemand() {
-        return this.maxDemand;
-    }
-
-    public int getMaxDistance() {
-        return maxDistance;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -226,28 +165,5 @@ public class Technicien {
                 ", maxDemand: " + maxDemand +
                 ", machines: " + machines +
                 '}';
-    }
-
-    public static void main(String[] args) {
-//        int[] workedDaysArray = new int[] {1, 2, 3, 5, 7};
-//        LinkedList<Integer> workedDaysList = new LinkedList<>();
-//        LinkedList<Integer> formatedWorkedDaysList;
-//
-//        for(int d: workedDaysArray){
-//            workedDaysList.add(d);
-//        }
-//
-////        System.out.println(workedDaysList);
-////
-////        formatedWorkedDaysList = Technicien.getPlannigFromDaysWorked(workedDaysList);
-////        System.out.println(formatedWorkedDaysList);
-////
-////        workedDaysList.add(4);
-////        Collections.sort(workedDaysList);
-////        formatedWorkedDaysList = Technicien.getPlannigFromDaysWorked(workedDaysList);
-////
-////        System.out.println(formatedWorkedDaysList);
-//
-//        Technicien.doesNeedRest(workedDaysList, 4);
     }
 }
