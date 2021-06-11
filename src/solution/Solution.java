@@ -425,7 +425,6 @@ public class Solution {
     @Override
     public String toString() {
         String string = "Solution{" +
-                "\ninstance: " + instance +
                 ",\n\ttruckDistance: " + truckDistance +
                 ",\n\tnumberOfTruckDays: " + numberOfTruckDays +
                 ",\n\tnumberOfTruckUsed: " + numberOfTruckUsed +

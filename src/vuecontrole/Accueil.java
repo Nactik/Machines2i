@@ -84,6 +84,7 @@ public class Accueil extends JFrame implements ActionListener {
     private JButton choisirDossierSolutionButton;
     private JLabel textPaneInstanceDirectory;
     private JLabel textPaneSolutionDirectory;
+    private JButton seeSolutionDetails;
     private String currentMenu;
 
     private final String backWhite = "#FFFFFF";
@@ -126,6 +127,7 @@ public class Accueil extends JFrame implements ActionListener {
         instanceSolutionShow.addActionListener(this);
         choisirDossierSolutionButton.addActionListener(this);
         choisirDossierInstanceButton.addActionListener(this);
+        seeSolutionDetails.addActionListener(this);
     }
     private void initWindow(){
         this.setTitle("Machines2i");
@@ -179,20 +181,11 @@ public class Accueil extends JFrame implements ActionListener {
         currentMenu = clickedMenu;
     }
     private void instanceInit(){
-        System.out.println("Yes");
-        String[] pathnames;
+        String[] pathnames = getAllInstanceFromDirectory();
 
         DefaultListModel<String> model = new DefaultListModel<>();
         list1.setModel(model);
-        File f = new File(currentInstanceDirectory);
-        currentInstanceDirectory = f.getAbsolutePath();
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File f, String name) {
-                return name.endsWith(".txt");
-            }
-        };
-        pathnames = f.list();
+
 
         list1.removeAll();
         if (pathnames!= null){
@@ -228,7 +221,7 @@ public class Accueil extends JFrame implements ActionListener {
 
             }
         }
-        if(currentSelectedSolution != null && !currentSelectedSolution.isEmpty()){
+        if(currentSelectedSolution != null && !currentSelectedSolution.isEmpty() && !currentSelectedSolution.equals("undefined")){
             int selected = model.indexOf(currentSelectedSolution);
             listSolution.setSelectedIndex(selected);
             solutionNameFiller = currentSelectedSolution;
@@ -400,6 +393,59 @@ public class Accueil extends JFrame implements ActionListener {
         }
     }
 
+    private String[] getAllInstanceFromDirectory(){
+        String[] pathnames;
+        FilenameFilter filter = new FilenameFilter() {
+            @Override
+            public boolean accept(File f, String name) {
+                return name.endsWith(".txt");
+            }
+        };
+        File f = new File(currentInstanceDirectory);
+        currentInstanceDirectory = f.getAbsolutePath();
+        pathnames = f.list();
+        return pathnames;
+    }
+
+    private Instance findLinkedInstance(Solution solution){
+
+        String[] pathnames = getAllInstanceFromDirectory();
+        InstanceReader instanceReader;
+        Instance instance;
+        for (String fileName : pathnames){
+            try {
+                instanceReader = new InstanceReader(currentInstanceDirectory + "/" + fileName);
+                instance = instanceReader.readInstance();
+            } catch (ReaderException e) {
+                return null;
+            }
+            if (instance.getDataset().equals(solution.getInstance().getDataset())
+            && instance.getName().equals(solution.getInstance().getName())){
+                return instance;
+            }
+        }
+        return null;
+    }
+
+    private void displaySolutionDetails() {
+        SolutionReader solutionReader;
+        Solution solution;
+        try {
+            solutionReader = new SolutionReader(currentSolutionDirectory + "/" + currentSelectedSolution);
+            solution = solutionReader.readSolution();
+        } catch (ReaderException e) {
+            return ;
+        }
+        Instance instance = findLinkedInstance(solution);
+        if (instance == null){
+            JOptionPane.showMessageDialog(this, "L'instance relié n'est pas présente dans le dossier d'instance courant");
+            return;
+        }
+        ChartSolutionDetails chartSolutionDetails = new ChartSolutionDetails(solution,instance);
+
+    }
+
+
     public static void main(String[] args) {
         Accueil accueil = new Accueil();
     }
@@ -407,24 +453,29 @@ public class Accueil extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().matches("Instances|Solutions|Paramètres")
-                && !currentMenu.equals(e.getActionCommand())){
-            currentSelectedSolution="";
-            currentSelectedInstance="";
-            clickMenu(e.getActionCommand());
-        }
-        if (e.getActionCommand().equals("Résoudre")){
-            solveCurrentInstance();
-        }
-        if (e.getActionCommand().equals("Voir")){
-            clickMenu("Solutions");
-        }
-        if (e.getActionCommand().equals("Choisir dossier solution") || e.getActionCommand().equals("Choisir dossier instance")){
-            changeDirectory(e.getActionCommand());
+        switch (e.getActionCommand()){
+            case "Instances":
+            case "Solutions":
+            case "Paramètres":
+                if (!currentMenu.equals(e.getActionCommand()));
+                clickMenu(e.getActionCommand());
+                break;
+            case "Résoudre":
+                solveCurrentInstance();
+                break;
+            case "Voir":
+                clickMenu("Solutions");
+                break;
+            case "Choisir dossier instance":
+            case "Choisir dossier solution":
+                changeDirectory(e.getActionCommand());
+                break;
+            case "Voir solution":
+                displaySolutionDetails();
+                break;
         }
 
     }
-
 
 
 
