@@ -5,11 +5,8 @@ import instance.model.Technicien;
 import instance.reseau.Client;
 import instance.reseau.Entrepot;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import java.util.LinkedHashMap;
 public class Instance {
     private String dataset;
     private String name;
@@ -39,10 +36,10 @@ public class Instance {
         this.techDayCost = -1;
         this.techDistCost = -1;
         this.techCost = -1;
-        this.entrepot = null;
-        this.clients = null;
-        this.technicians = null;
-        this.machines = null;
+        this.entrepot = new Entrepot(0,0,0);
+        this.clients = new LinkedHashMap<>();
+        this.technicians = new LinkedHashMap<>();
+        this.machines = new LinkedList<Machine>();
     }
 
     public Instance(String dataset,String name, int nbDay, int truckCapacity, int distMaxTruck, int truckDistCost,

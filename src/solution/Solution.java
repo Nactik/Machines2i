@@ -51,6 +51,7 @@ public class Solution {
         this.numberOfTechnicianUsed = numberOfTechnicianUsed;
         this.idleMachineCost = idleMachineCost;
         this.totalCost = totalCost;
+        this.days = new HashMap<>();
     }
 
     public Solution(Solution solution){

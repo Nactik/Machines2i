@@ -221,9 +221,11 @@ public class Accueil extends JFrame implements ActionListener {
 
             }
         }
-        if(currentSelectedSolution != null && !currentSelectedSolution.isEmpty() && !currentSelectedSolution.equals("undefined")){
+        if((currentSelectedSolution != null) &&
+                (!currentSelectedSolution.isEmpty()) &&
+                (!currentSelectedSolution.equals("undefined"))){
             int selected = model.indexOf(currentSelectedSolution);
-            listSolution.setSelectedIndex(selected);
+            //listSolution.setSelectedIndex(selected);
             solutionNameFiller = currentSelectedSolution;
         }
         fillSolution(solutionNameFiller);
