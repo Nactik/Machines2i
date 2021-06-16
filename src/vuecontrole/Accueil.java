@@ -6,7 +6,6 @@ import io.InstanceReader;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.FileChooserUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,23 +13,24 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.UnsupportedEncodingException;
-import java.nio.channels.FileChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import io.InstanceReader;
 import io.SolutionReader;
 import io.SolutionWriter;
 import io.exception.ReaderException;
 import solution.Solution;
 import solveur.Triviale;
 
+/**
+ * Classe qui gère la fenêtre unique d'affichage
+ * Cette classe contient beaucoup d'attribut qui sont nécessaire pour être lié au .form
+ * Nous voulions une fenêtre unique d'affichage.
+ */
 public class Accueil extends JFrame implements ActionListener {
     private JPanel panel1;
-    private JPanel SidePanel;
     private JPanel mainInstance;
     private JPanel mainSolution;
-    private JPanel MainPanel;
     private JButton instancesButton;
     private JButton solutionsButton;
     private JButton parametresButton;
@@ -38,15 +38,10 @@ public class Accueil extends JFrame implements ActionListener {
     private JPanel Solutions;
     private JPanel Paramètres;
     private JPanel mainParametre;
-    private JPanel panelListe;
-    private JPanel panelInfo;
-    private JScrollPane listPanel;
     private JList list1;
     private JLabel instanceNameLabel;
     private JButton buttonResoudre;
     private JPanel affichageSolution;
-    private JPanel affichageInstance;
-    private JPanel buttonRésoudre;
     private JButton instanceSolutionShow;
     private JPanel afficherSolution;
     private JLabel instanceDataset;
@@ -89,13 +84,15 @@ public class Accueil extends JFrame implements ActionListener {
 
     private final String backWhite = "#FFFFFF";
     private final String backGrey = "#D0C6C6";
-    private final String tomatoe = "#FF6347";
 
     private String currentInstanceDirectory;
     private String currentSolutionDirectory;
     private String currentSelectedInstance;
     private String currentSelectedSolution;
 
+    /**
+     * Constructeur par défaut de la fenêtre
+     */
     public Accueil() {
         currentMenu = "";
         currentInstanceDirectory = "instancesProg";
@@ -109,6 +106,7 @@ public class Accueil extends JFrame implements ActionListener {
         this.instancesButton.addActionListener(this);
         this.parametresButton.addActionListener(this);
 
+        //Clic sur une instance
         list1.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -116,6 +114,7 @@ public class Accueil extends JFrame implements ActionListener {
                 fillInstance(currentSelectedInstance);
             }
         });
+        //Clic sur une solution
         listSolution.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -129,6 +128,11 @@ public class Accueil extends JFrame implements ActionListener {
         choisirDossierInstanceButton.addActionListener(this);
         seeSolutionDetails.addActionListener(this);
     }
+
+    /**
+     * Initialisation de la fenêtre
+     * Défini sa taille, sa position et ses actions
+     */
     private void initWindow(){
         this.setTitle("Machines2i");
         this.setSize(900, 600);
@@ -143,6 +147,10 @@ public class Accueil extends JFrame implements ActionListener {
         instanceInit();
     }
 
+    /**
+     * Gère la réaction d'affichage sur le clic d'un des menus (changement de la vue)
+     * @param clickedMenu le nom du menu qui vient d'être cliqué
+     */
     private void clickMenu(String clickedMenu){
         switch (clickedMenu){
             case "Instances":
@@ -180,6 +188,11 @@ public class Accueil extends JFrame implements ActionListener {
         }
         currentMenu = clickedMenu;
     }
+
+    /**
+     * Initiation de la fenêtre d'instance
+     * Ajoute toutes les instances du dossier courant dans la liste d'instance
+     */
     private void instanceInit(){
         String[] pathnames = getAllInstanceFromDirectory();
 
@@ -198,6 +211,10 @@ public class Accueil extends JFrame implements ActionListener {
         fillInstance(null);
 
     }
+    /**
+     * Initiation de la fenêtre de solution
+     * Ajoute toutes les solution du dossier courant dans la liste de solution
+     */
     private void solutionInit(){
         String solutionNameFiller = null;
         String[] pathnames;
@@ -230,6 +247,12 @@ public class Accueil extends JFrame implements ActionListener {
         }
         fillSolution(solutionNameFiller);
     }
+
+    /**
+     * Rempli l'affichage de l'instance séléctionnée
+     * si aucune instance n'est selectionnée, laisse les champs vides
+     * @param instanceName Nom de l'instance (instance.txt)
+     */
     private void fillInstance(String instanceName){
         affichageSolution.setVisible(false);
         afficherSolution.setVisible(false);
@@ -275,6 +298,12 @@ public class Accueil extends JFrame implements ActionListener {
         }
 
     }
+
+    /**
+     * rempli la petite partie d'affichage de solution dans la fenêtre d'instance
+     * @param solution La solution séléctionnée
+     * @param methode Le nom de la méthode utilisée pour résoudre l'instance
+     */
     private void fillSolutionPreview(Solution solution,String methode) {
         affichageSolution.setVisible(true);
         afficherSolution.setVisible(true);
@@ -287,6 +316,12 @@ public class Accueil extends JFrame implements ActionListener {
         instanceSolutionTruck.setText(String.valueOf(solution.getNumberOfTruckUsed()));
 
     }
+
+    /**
+     * Rempli l'affichage de la solution séléctionnée
+     * si aucune solution n'est selectionnée, laisse les champs vides
+     * @param solutionName Nom de la solution (solution.txt)
+     */
     private void fillSolution(String solutionName){
         System.out.println("this is in fill solution");
         if (solutionName!=null) {
@@ -328,10 +363,21 @@ public class Accueil extends JFrame implements ActionListener {
         }
 
     }
+
+    /**
+     * initialise la fenêtre de paramètre
+     */
     private void paramInit(){
         textPaneSolutionDirectory.setText(currentSolutionDirectory);
         textPaneInstanceDirectory.setText(currentInstanceDirectory);
     }
+
+    /**
+     * Extrait le nom de la méthode de résolution d'une solution
+     * Extrait trivial de solution-instance4-trivial.txt
+     * @param solutionName
+     * @return
+     */
     private String extractName(String solutionName) {
         String solveurName = "undefined";
         String[] solutionParts = solutionName.split("-");
@@ -342,6 +388,10 @@ public class Accueil extends JFrame implements ActionListener {
         return solveurName;
     }
 
+    /**
+     * Résout l'instance séléctionnée.
+     * crée le fichier de solution.
+     */
     private void solveCurrentInstance() {
         InstanceReader reader;
         try {
@@ -365,6 +415,11 @@ public class Accueil extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * Ouvre une fenêtre de choix de dossier et ajoute le dossier soit au dossier de solution actuelle
+     * soit au dossier d'instance actuelle.
+     * @param actionCommand
+     */
     private void changeDirectory(String actionCommand) {
         JFileChooser chooser;
         String result;
@@ -395,6 +450,10 @@ public class Accueil extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * retourne toutes les instances d'un dossier
+     * @return
+     */
     private String[] getAllInstanceFromDirectory(){
         String[] pathnames;
         FilenameFilter filter = new FilenameFilter() {
@@ -409,6 +468,12 @@ public class Accueil extends JFrame implements ActionListener {
         return pathnames;
     }
 
+    /**
+     * Cherche l'instance liée à une solution dans le dossier d'instance actuelle.
+     * Retourne cette instance si elle existe.
+     * @param solution La solution qui doit être liée à l'instance.
+     * @return
+     */
     private Instance findLinkedInstance(Solution solution){
 
         String[] pathnames = getAllInstanceFromDirectory();
@@ -429,6 +494,9 @@ public class Accueil extends JFrame implements ActionListener {
         return null;
     }
 
+    /**
+     * Affiche les détails d'une solution choisis
+     */
     private void displaySolutionDetails() {
         SolutionReader solutionReader;
         Solution solution;
@@ -452,7 +520,10 @@ public class Accueil extends JFrame implements ActionListener {
         Accueil accueil = new Accueil();
     }
 
-
+    /**
+     * Gère les événements de clics et lance les différentes méthodes associés.
+     * @param e
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()){
