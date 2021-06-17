@@ -80,6 +80,13 @@ public class Accueil extends JFrame implements ActionListener {
     private JLabel textPaneInstanceDirectory;
     private JLabel textPaneSolutionDirectory;
     private JButton seeSolutionDetails;
+    private JPanel MainPanel;
+    private JPanel SidePanel;
+    private JPanel panelListe;
+    private JPanel panelInfo;
+    private JPanel affichageInstance;
+    private JPanel buttonRésoudre;
+    private JScrollPane listPanel;
     private String currentMenu;
 
     private final String backWhite = "#FFFFFF";
