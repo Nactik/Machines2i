@@ -61,7 +61,7 @@ public class ClarkeAndWright implements Solveur {
         try {
             //reader = new InstanceReader("exemple/testInstance.txt");
             //reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_24_easy.txt");
-            reader = new InstanceReader("instances/ORTEC-early/VSC2019_ORTEC_early_05.txt");
+            reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_19_easy.txt");
             Instance instance =  reader.readInstance();
             ClarkeAndWright caw = new ClarkeAndWright();
             System.out.println(caw.getNom());
