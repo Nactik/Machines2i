@@ -55,7 +55,7 @@ public class Solution {
     }
 
     /**
-     * Ajoute une demande à une nouvelle tournée de camion le premier jour de la dispo de la commande
+     * Ajoute une demande à une nouvelle tournée de camion le premier jour de la disponibilité de la commande
      * @param demand la demande à traiter
      */
     public boolean addDemandNewTourneeTruck(Demande demand) {

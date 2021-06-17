@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 // TO CHECK : import des classes Solution, InsertionSimple et Solveur
 import solution.Solution;
 import solveur.*;
@@ -101,14 +103,16 @@ public class TestAllSolveur {
         File[] listOfFiles = folder.listFiles();
         for (File file : listOfFiles) {
             if (file.isFile()) {
-                try {
-                    // TO CHECK : constructeur de InstanceReader
-                    InstanceReader reader = new InstanceReader(file.getAbsolutePath());
-                    // TO CHECK : lecture d'une instance avec la classe InstanceReader
-                    instances.add(reader.readInstance());
-                } catch (ReaderException ex) {
-                    System.out.println("L'instance "+file.getAbsolutePath()
-                            + " n'a pas pu etre lue correctement");
+                for(int i=0;i<solveurs.size();i++){
+                    try {
+                        // TO CHECK : constructeur de InstanceReader
+                        InstanceReader reader = new InstanceReader(file.getAbsolutePath());
+                        // TO CHECK : lecture d'une instance avec la classe InstanceReader
+                        instances.add(reader.readInstance());
+                    } catch (ReaderException ex) {
+                        System.out.println("L'instance "+file.getAbsolutePath()
+                                + " n'a pas pu etre lue correctement");
+                    }
                 }
             }
         }
@@ -124,8 +128,9 @@ public class TestAllSolveur {
         try {
             ecriture = new PrintWriter(nomFichierResultats+".csv");
             printEnTetes(ecriture);
-            for(Instance inst : instances) {
-                printResultatsInstance(ecriture, inst);
+            for(int i=0; i<instances.size();i+=solveurs.size()){
+                List<Instance> toSolve = IntStream.range(i,i+solveurs.size()).boxed().map(instances::get).collect(Collectors.toList());
+                printResultatsInstance(ecriture, toSolve);
             }
             ecriture.println();
             printSommeResultats(ecriture);
@@ -155,22 +160,24 @@ public class TestAllSolveur {
      * Pour chque solveur, l'instance est resolue par le solveeur avant que
      * ses resultats ne soient ecrits sur le fichier.
      * @param ecriture le writer sur lequel on fait l'ecriture
-     * @param inst l'instane pour laquelle on ecrit les resultats
+     * @param instances l'instane pour laquelle on ecrit les resultats
      */
-    private void printResultatsInstance(PrintWriter ecriture, Instance inst) {
+    private void printResultatsInstance(PrintWriter ecriture, List<Instance> instances) {
         // TO CHECK : recuperer le nom de l'instance
-        ecriture.print(inst.getName());
+        ecriture.print(instances.get(0).getName());
+        int cnt = 0;
         for(Solveur solveur : solveurs) {
             long start = System.currentTimeMillis();
             // TO CHECK : resolution de l'instance avec le solveur
-            Solution sol = solveur.solve(inst);
+            Solution sol = solveur.solve(instances.get(cnt));
             long time = System.currentTimeMillis() - start;
             // TO CHECK : recperer le cout total de la solution, et savoir si
             // la solution est valide
             Resultat result = new Resultat(sol.getTotalCost(), time, sol.check());
-            resultats.put(new InstanceSolveur(inst, solveur), result);
+            resultats.put(new InstanceSolveur(instances.get(cnt), solveur), result);
             ecriture.print(";"+result.formatCsv());
             totalStats.get(solveur).add(result);
+            cnt ++;
         }
         ecriture.println();
     }
@@ -283,7 +290,7 @@ public class TestAllSolveur {
         }
 
         /**
-         * Ajout d'un resultat pour faire la somme
+         * Ajout d'un resultat pour faire la sommeé
          * @param resultat le resultat a ajouter
          */
         public void add(Resultat resultat) {
