@@ -41,6 +41,19 @@ public class Solution {
         this.instance = instance;
     }
 
+    public Solution(Instance instance, long truckDistance, long numberOfTruckDays, long numberOfTruckUsed, long technicianDistance, long numberOfTechnicianDays, long numberOfTechnicianUsed, long idleMachineCost, long totalCost) {
+        this.instance = instance;
+        this.truckDistance = truckDistance;
+        this.numberOfTruckDays = numberOfTruckDays;
+        this.numberOfTruckUsed = numberOfTruckUsed;
+        this.technicianDistance = technicianDistance;
+        this.numberOfTechnicianDays = numberOfTechnicianDays;
+        this.numberOfTechnicianUsed = numberOfTechnicianUsed;
+        this.idleMachineCost = idleMachineCost;
+        this.totalCost = totalCost;
+        this.days = new HashMap<>();
+    }
+
     public Solution(Solution solution){
         this.instance = solution.instance;
         this.truckDistance = solution.truckDistance;
