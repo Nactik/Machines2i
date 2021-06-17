@@ -37,7 +37,8 @@ public class Triviale implements Solveur{
         InstanceReader reader;
         try {
             //reader = new InstanceReader("exemple/testInstance.txt");
-            reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_09_easy.txt");
+            //reader = new InstanceReader("instances/ORTEC-early-easy/VSC2019_ORTEC_early_09_easy.txt");
+            reader = new InstanceReader("instances/ORTEC-early/VSC2019_ORTEC_early_05.txt");
             Instance instance =  reader.readInstance();
             Triviale triviale = new Triviale();
             System.out.println(triviale.getNom());
